@@ -49,7 +49,8 @@ def shared_dataset(data_xy, borrow=True):
     return shared_x, T.cast(shared_y, 'int32')
 
 
-def load_data(dataset, train, valid, test, targetCol, targets=4, borrow=True):
+def load_data(dataset, train, valid, test, targetCol, delimiter=',', targets=4,
+              borrow=True):
 
     data_dir, data_file = os.path.split(dataset)
     if data_dir == "" and not os.path.isfile(dataset):
@@ -66,18 +67,19 @@ def load_data(dataset, train, valid, test, targetCol, targets=4, borrow=True):
         with gzip.open(dataset, 'rb') as f:
             try:
                 train_set, valid_set, test_set = pickle.load(f,
-                        encoding='latin1')
+                                                             encoding='latin1')
             except:
                 train_set, valid_set, test_set = pickle.load(f)
     else:
-        if (train_set != "" and valid_set != "" and test_set != ""):
-
+        if (train_set != "" and valid_set != "" and test_set != "" and
+                delimiter != "" and targetCol != ""):
+                load_data_csv(train_set, valid_set, test_set, delimiter,
+                              targetCol, targets)
         else:
             print('Data file does not have a valid format please either \
                    run demo or use a CSV as input\n')
             print('The program will exit NOW!')
             sys.exit()
-
 
     test_set_x, test_set_y = shared_dataset(test_set)
     valid_set_x, valid_set_y = shared_dataset(valid_set)
@@ -88,8 +90,10 @@ def load_data(dataset, train, valid, test, targetCol, targets=4, borrow=True):
     return rval
 
 
-def load_data_csv(train_set, valid_set, test_set, delimiter, targetColumn, targets=4):
-    train_xy = load_csv(train_set, delimiter)    
+def load_data_csv(train_set, valid_set, test_set, delimiter, targetColumn,
+                  targets=4):
+
+    train_xy = load_csv(train_set, delimiter)
     valid_xy = load_csv(valid_set, delimiter)
     test_xy = load_csv(test_set, delimiter)
 
@@ -103,6 +107,7 @@ def load_data_csv(train_set, valid_set, test_set, delimiter, targetColumn, targe
             (test_set_x, test_set_y)]
 
     return rval
+
 
 def load_csv(path, delimiter):
     """TODO: Docstring for load_csv.
@@ -129,17 +134,20 @@ def transform(data, targetColumnNumber, targets):
 
     del data[0]
     for i in xrange(len(data)):
-        label.append(data[i][targetColumnNumber]) # labels: 1 - predictClass, 0 - reg. predict
+        label.append(data[i][targetColumnNumber])  # labels: 1 - predictClass,
+                                                   # 0 - reg. predict
     data = zip(*data)
     data = map(list, zip(*data[targets:]))
 
     # conversion in numpy
-    data = numpy.array(data, numpy.float32)
-    label = numpy.array(label, numpy.int32)
+    data = np.array(data, np.float32)
+    label = np.array(label, np.int32)
 
     # conversion to theano shared variables
-    shared_x = theano.shared(numpy.asarray(data, dtype = theano.config.floatX), borrow=True)
-    shared_y = theano.shared(numpy.asarray(label, dtype = theano.config.floatX), borrow=True)
+    shared_x = theano.shared(np.asarray(data, dtype=theano.config.floatX),
+                             borrow=True)
+    shared_y = theano.shared(np.asarray(label, dtype=theano.config.floatX),
+                             borrow=True)
     return shared_x, T.cast(shared_y, 'int32')
 
 
