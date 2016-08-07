@@ -7,7 +7,7 @@ import csv
 import os
 import json
 import sys
-from libs import riskNN
+from neuralRisk.libs import riskNN
 
 '''
     run tasks given in json format

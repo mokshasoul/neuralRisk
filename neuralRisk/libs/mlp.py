@@ -3,7 +3,6 @@ import numpy as np
 import theano.tensor as T
 import theano
 from logistic_reg import LogisticRegression
-from theano import function
 
 
 class HiddenLayer(object):

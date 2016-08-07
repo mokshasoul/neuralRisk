@@ -51,13 +51,19 @@ class riskMLP(object):
     top layer is a softmax layer (defined here by a ``LogisticRegression``
     class).
     """
-    def __init__(self, rng, input, n_in, n_hidden, n_out):
+    def __init__(self, rng, input, n_in, n_hidden, n_out,
+                    activation_function="tanh"):
+        if activation_function == "tanh":
+            activation = T.tanh
+        elif activation_function == "relu":
+            activation = T.nnet.relu
+
         self.hiddenLayer = HiddenLayer(
                 rng=rng,
                 input=input,
                 n_in=n_in,
                 n_out=n_hidden,
-                activation=T.tanh
+                activation=activation
                 )
         self.logRegressionLayer = LogisticRegression(
                 input=self.hiddenLayer.output,
