@@ -29,12 +29,12 @@ from __future__ import print_function
 import numpy as np
 import theano.tensor as T
 import theano
+from libs import riskNN
 from theano import function
 import sys
 import os
 import timeit
-from utils import load_data
-
+from libs import utils
 __docformat__ = 'restructedtext en'
 
 
@@ -314,7 +314,7 @@ def create_NN(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
 
 
     """
-    datasets = load_data(dataset)
+    datasets = utils.load_data(dataset)
 
     train_set_x, train_set_y = datasets[0]
     valid_set_x, valid_set_y = datasets[1]
@@ -481,4 +481,4 @@ def create_NN(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
 
 
 if __name__ == '__main__':
-    create_NN()
+    riskNN.create_NN()

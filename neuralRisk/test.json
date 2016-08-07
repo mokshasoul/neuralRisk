@@ -2,6 +2,7 @@
 	"tasks": [
 		{
 			"datasets" : ["mnist"],
+            "delimiter" : ",",
 			"target_name" : "class",
 			"finetune_lr" : 0.1,
 			"pretraining_epochs" : 5,

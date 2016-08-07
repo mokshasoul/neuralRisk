@@ -54,7 +54,6 @@ def run_task(params):
 
     for dataset in params['datasets']:
         riskNN.create_NN(params['finetune_lr'],
-                         params['target_name'],
                          params['pretraining_epochs'],
                          params['pretrain_lr'],
                          params['training_epochs'],
@@ -63,8 +62,8 @@ def run_task(params):
                          params['n_ins'],
                          params['hidden_layers_sizes'],
                          params['n_outs'],
-                         params['logfile'],
-                         targets)
+                         params['logfile']
+                         )
 
 if __name__ == '__main__':
     try:

@@ -29,13 +29,13 @@ from __future__ import print_function
 import numpy as np
 import theano.tensor as T
 import theano
-from theano import function
-import cPickle as pickle
+import six.moves.cPickle as pickle
 from logistic_reg import LogisticRegression
 from mlp import HiddenLayer
 import sys
 import os
 import timeit
+from datetime import date
 from utils import load_data
 
 __docformat__ = 'restructedtext en'
@@ -239,6 +239,7 @@ def create_NN(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
     while (epoch < n_epochs) and (not done_looping):
         epoch = epoch + 1
         for minibatch_index in range(n_train_batches):
+
             minibatch_avg_cost = train_model(minibatch_index)
             # iteration number
             iter = (epoch - 1) * n_train_batches + minibatch_index
@@ -266,10 +267,11 @@ def create_NN(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
                             improvement_threshold
                             ):
                         patience = max(patience, iter * patience_increase)
+
                     best_validation_loss = this_validation_loss
                     best_iter = iter
 
-# test it on the test set
+                    # test it on the test set
                     test_losses = [test_model(i) for i
                                    in range(n_test_batches)]
                     test_score = np.mean(test_losses)
@@ -278,6 +280,11 @@ def create_NN(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
                            'best model %f %%') %
                           (epoch, minibatch_index + 1, n_train_batches,
                            test_score * 100.))
+                    with open('best_model_'+str(date.today())+'.pkl', 'wb') \
+                            as f:
+                            pickle.dump((classifier.params,
+                                         classifier.logRegressionLayer.y_pred,
+                                         classifier.input), f)
 
             if patience <= iter:
                 done_looping = True
@@ -293,25 +300,43 @@ def create_NN(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
           file=sys.stderr)
 
 
-def predict(dataset):
+def predict(dataset, n_hidden, n_in, n_out):
     """
     An example of how to load a trained model and use it
-    to predict labels.
+    to predict labels. Modified in order to be able to pickle
+    model taken from :
+    https://stackoverflow.com/questions/34068922/save-theano-model-doenst-work-for-mlp-net
     """
-
-    # load the saved model
-    classifier = pickle.load(open('best_model.pkl'))
-
-    # compile a predictor function
-    predict_model = theano.function(
-        inputs=[classifier.input],
-        outputs=classifier.y_pred)
-
     # We can test it on some examples from test test
     datasets = load_data(dataset)
     test_set_x, test_set_y = datasets[2]
     test_set_x = test_set_x.get_value()
+    test_set_y = test_set_y.eval()
 
+    rng = np.random.RandomState(1234)
+    x = T.matrix('x')
+
+    # load the saved model
+    # classifier = pickle.load(open('best_model.pkl'))
+    # modified according to stackoverflow post, since
+    # theano instancemethods are not pickable
+    classifier = riskMLP(
+                rng=rng,
+                input=x,
+                n_in=n_in,
+                n_hidden=n_hidden,
+                n_out=n_out
+            )
+
+    classifier.params, classifier.logRegressionLayer.y_pred,
+    classifier.input = pickle.load(open('best_model.pkl'))
+
+    # compile a predictor function
+    predict_model = theano.function(
+        inputs=[classifier.input],
+        outputs=classifier.logRegressionLayer.y_pred)
+
+    print("expected to get: ", test_set_y[:10])
     predicted_values = predict_model(test_set_x[:10])
     print("Predicted values for the first 10 examples in test set:")
     print(predicted_values)

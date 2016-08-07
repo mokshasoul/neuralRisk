@@ -73,7 +73,7 @@ def load_data(dataset, train="", valid="", test="", targetCol="",
             except:
                 train_set, valid_set, test_set = pickle.load(f)
     else:
-        if (train_set != "" and valid_set != "" and test_set != "" and
+        if (train != "" and valid != "" and test != "" and
                 delimiter != "" and targetCol != ""):
                 load_data_csv(train_set, valid_set, test_set, delimiter,
                               targetCol, targets)

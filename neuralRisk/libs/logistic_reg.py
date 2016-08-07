@@ -2,8 +2,6 @@ from __future__ import print_function
 import numpy as np
 import theano.tensor as T
 import theano
-from theano import function
-import timeit
 
 
 class LogisticRegression(object):
@@ -76,7 +74,6 @@ class LogisticRegression(object):
 
     def negative_log_likelihood(self, y):
         """
-        
         Return the mean of the negative log-likelihood of the prediction
         of this model under a given target distribution.
 
@@ -109,7 +106,6 @@ class LogisticRegression(object):
 
     def errors(self, y):
         """
-        
         Return a float representing the number of errors in the minibatch
         over the total number of examples of the minibatch ; zero one
         loss over the size of the minibatch
