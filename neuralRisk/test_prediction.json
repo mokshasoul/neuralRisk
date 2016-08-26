@@ -1,0 +1,20 @@
+{
+	"tasks": [
+        {
+			"learning_rate" : 0.01,
+            "L1_reg" : 0.00,
+            "L2_reg" : 0.0001,
+			"training_epochs" : 1000,
+            "best_model":"best_model_bank_2016-08-26.pkl",
+			"datasets" : ["testData/bank/bank.csv"],
+			"n_ins" : 51,
+			"n_outs" : 2,
+			"batch_size" : 40,
+			"hidden_layers_sizes" : 100,
+			"logfile" : "logs/bank.csv",
+            "activation" : "tanh",
+            "delimiter" : ",",
+            "setting" : "predict"
+        }
+	]
+}

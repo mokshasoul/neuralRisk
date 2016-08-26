@@ -1,0 +1,114 @@
+\documentclass{article}
+
+\begin{document}
+
+\section{Introduction}
+\label{sec:Introduction}
+
+One of the recurring trends that can be observed today, is the active participation of single consumers in the financial markets~\cite{barasinska}. As such a clear development to support this in the banking sector has been created, where consumers are offered stocks, portfolios and etc tailored to their needs. This can be often lacking as individual preferences are not always accounted for.
+
+A metric which can actually be use with a little more certainty to create suggestions tailored to the individual needs of the consumer, is the willingness to take risk of each individual. As the risk of stocks and portfolio options can be calculated based on the expected returns, one could use this metric to asses which financial product would be appropriate for each individual.
+
+The project described here, was created with the purpose of allocating financial products of banks to their customers based on 4 preference questions. The questions should provide in the end a metric that would reflect the willingness to take risk for an individual
+
+Calculating financial risk though, is a very complicated manner. By recognizing that this problem is easy to solve although for an individual case, one might think that his is a problem of classifying individual in certain risk-category groups. The ability to provide classification from a variety of metrics, for a large number of data sets is a main feature exhibited by artificial neural networks.
+
+For this reason, the project described in this paper will try to solve following problem:
+\textit{Which metrics and how should the metrics be used in order to associate individual willingness to take risk, with the risk of stock options}
+\section{Theoretical Background}
+\label{sec:theoretical_background}
+This section will provide a brief introduction into the main theoretical premises utilized in implementing this project. It is structured in the following way:
+\begin{enumerate}
+    \item The first subsection will provide a brief introduction into the definition of risk for financial products
+    \item The second subsection will provide a brief introduction to neural networks and their functions
+    \item Subsequently the application between the two will be explained
+\end{enumerate}
+
+After reading this Section, the reader will be able to grasp the premise of this work.
+
+%TODO: Define the scope of financial risk discussed in this paper
+% CITE: finRisk: https://is.muni.cz/el/1456/podzim2007/PMAEMA/Bouchaud_J.-P.__Potters_M._Theory_of_financial_risks.._from_statistical_physics_to_risk_management__CUP__2000_no_p.128-129_L_T_116s_.pdf
+\subsection{Financial Risk}
+\label{sub:financial_risk}
+
+The measurement and control of risk is a major topic even today~\cite{finRisk}.~\cite{finRisk} states that financial risk is assosciated with the statistical uncertainity of the final outcome, and is measured by its volatility. Humans will indulge in financial risk at different levels, in order to arrive at financial gains. Some will indulge in highly risky affairs which yield higher rewards, while others will prefer less risk at the downside of smaller returns on their financial investment.
+
+In the case of this research paper, financial risk will be defined as the risk undertaken when a bank customer chooses to invests in a stock option, a portfolio or bond options with the ultimate goal of expanding his monetary gain. The financial risk undertaken therefore, is the loss of the investment in case of risk materialisation~\cite{finRisk}. The paper will not consider financial risk per se, rather it will consider itself with categories and the volatility of the stock options given by the bank.
+
+%TODO: Describe from the first chapter of that website the most important points and what characterizes neural networks
+% neuralBook: http://www.deeplearningbook.org/
+% Use lots of pictures
+\subsection{Neural Networks}
+\label{sub:neural_networks}
+
+Neural networks and deep learning are in essence machine learning algorithms, where deep learning is a more specific type of machine learning~\cite{neuralBook}. For the purpose of this paper, the definition presented below is derived from~\cite{neuralBook}. A machine learning algorithm foremost wants to learn something, anything that can be learned from a set of data, therefore a learning algorithm is employed.
+
+\cite{mitchel97} defines the learning part of a learning algorithm as `A computer program is said to learn from experience \textit{E} with respect to some class of tasks \textit{T} and performance measure \textit{P}, if its performance at task in \textit{T}, as measured by \textit{P}, improves with experience \textit{E}.`. The task \textit{T}, is more accurately a task, that is difficult to solve with a fixed program, traditional program, and it is not to be confused with the process of learning, since the task itself is the problem that needs to be solved.
+
+The learning process is based on how a machine learning process will process an \textbf{example}, that is composed of a collection of \textbf{features}, where a vector \(x \in \R^n \) and each $$x_i$$ of the vector is just another feature of the example. An example of a feature are the values of the individual pixels in an image. Some of the more common tasks that can be solved by machine learning are as follows:
+\begin{itemize}
+    \item Classification: The task here is to specify in which category \texit{k} a certain input belongs to. These type of algorithms are used for example for classifying images to objects. A function $$f(x)$$ is computed based on the data learned.
+    \item Regression: The task here is to predict a numerical value given some input. The function $$f(x)$$ that is calculated is similar to the one of the classification algorithm with the exception that the output format differs. A simple example of this is the prediction of the claim amount an insured person will make, or the future price of securities.
+    \item Transcription: The task in this instance, is to observe an unstructured representation of some kind of data, and try to transcribe it in textual form. A simple example of this is the transcription of a handwritten image to text.
+    \item Machine translation: In this task the computer tries to translate one language to another, the most common application is the translation of two natural languages e.g. English to French. Here deep learning is quite important.
+    \item Structured output: Any tasks, where the output is a vector, that contains important relationships between the different elements. An example is the transcription above, or parsing of natural languages in trees that describe grammatical structures.
+    \item Anomaly detection: The program will flag data that is not conforming to the usually observed data as an anomaly. Usage is e.g. Credit card fraud, or in anti-virus software.
+    \item Synthesis and sampling: The task is to generate new examples, based on the already existing data. This is interesting as for example the program might be tasked to create a movie script, or create large volumes of music.
+    \item Imputation of missing values: The task is to be able to predict missing values in datasets
+    \item Denoising: A corrupted example is given which was corrupted by an unknown process, and the program hast to predict a clean example through another clean example x
+    \item Density estimation or probability mass function estimation: 
+\end{itemize}
+% Literature chosen based on what
+\section{Literature Review}
+\label{sec:literature_review}
+This section will be reviewing available literature that focuses on creating neural networks to asses risk in different settings. Some of the literature reviewed here does not directly apply to the financial sector, yet yields useful information in what kind of methodology should be applied in order to create the implementation detailed further down in this paper.
+
+\subsection{Determinants of Risk}
+\label{sub:determinants_riks}
+
+
+\subsection{Financial risk with NNs}
+\label{sub:financial_risk_nn}
+
+
+\subsection{Various risk with NNs}
+\label{sub:various_risk_nn}
+
+% Methodology of choosing equations, and algorithmic approaches
+\section{Methodology}
+\label{sec:methodology}
+
+As detailed in the relevant literature, the methodology which is appropriate neural network design for the problem detailed in the introduction, is that of a multi-layered perceptron. As detailed in Section~\ref{sub:neural_networks} these types of networks are appropriate for classification tasks. The design of the network to be implemented can be visualised in Figure~\ref{fig:net_design}. 
+
+To determine the relevant setup a questionnaire was developed based on the literature reviewed in~\ref{sub:determinants_risk}. The questionnaire is included as part of this paper in the appendix. The first assumption that is going to be tested is if the network can asses through the first three questions posed, the outcome of the fourth question. If the fourth question can be guessed correctly then we could equally assume that with the inclusion of the fourth question as an input the outcome will be even more correct. 
+
+The purpose of the fourth question is to classify the persons answering the questionnaire into three distinct classes. One who is risk-averse, one who is of medium risk-aversity/propensity and a class who is more risk-prone tthan the other ones. The purpose of this, as detailed in Section\ref{sec:Introduction} is to be able to determine the appropriate investment packages that should be recommended to a client of a bank.
+
+The network will save and plot the different results in order to visualize and create a relationship between the different values that a neural network accepts as detailed in Section~\ref{sub:neural_networks}.
+
+%Here explain the code
+\section{Implementation Details}
+\label{sec:implementation_details}
+
+The chosen language for the implementation is python. This is due to the wide use in neural networks, and in general data-science which is enjoyed by python. As we needed a network with adequate performance the theano tensor framework was chosen in order to implement the different neural network functionalities.
+%TODO: epochs, trainingsets, explanation what a neural net is
+
+Since there can be different types of data, the algorithm will preprocess the input sets in order to standardize the data. Data standardization is needed in order to obtain sane values for binary and categorical datasets. For this purpose the scikitlearn framework is employed. The data will then be normalized. Normalization is needed in order to restrict the data between the values of minimum and maximum values that it can acquire and is employed in statistics. While standarization is always a normalization, normalization itself is not a standarization. Normalization is used here to eliminate influences of large values.
+
+The main scale of the program is located in the file \texit{run.py}. The file can be called using \textit{python run.py} with following arguments:
+\begin{itemize}
+    \item -d or --demo: runs the demo function on the mnist dataset
+    \item -j or --json: expects a json as input with the task to solve
+    \item -v or --version: displays the program version
+\end{itemize}
+
+% How the program could be expanded, or what kind of research needs to be done to 
+% add even more hidden layers that would create more precision 
+\section{Future Work}
+\label{sec:future_work}
+
+
+
+
+
+\end{document}
