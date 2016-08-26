@@ -24,11 +24,13 @@ import os
 import gzip
 import cPickle as pickle
 import numpy as np
+from numpy import loadtxt
 import theano
+import pandas as pd
 import matplotlib.pyplot as plt
-from mlp_toolkits.mplot3d import Axes3D
-from matplotlib import cm
-from sklearn.feature.extraction import DictVectorizer
+#from mlp_toolkits.mplot3d import Axes3D
+#from matplotlib import cm
+from sklearn.feature_extraction import DictVectorizer
 from datetime import date
 import theano.tensor as T
 import csv
@@ -37,7 +39,6 @@ import sys
 # %matlpotlib inline
 
 __author__ = 'c.n.georgiou'
-
 
 def shared_dataset(data_xy, borrow=True):
     """ Function that loads the datasets into shared variables
@@ -55,8 +56,7 @@ def shared_dataset(data_xy, borrow=True):
     return shared_x, T.cast(shared_y, 'int32')
 
 
-def load_data(dataset, train="", valid="", test="",
-              delimiter=';', borrow=True):
+def load_data(dataset, delimiter=',', borrow=True):
 
     data_dir, data_file = os.path.split(dataset)
     if data_dir == "" and not os.path.isfile(dataset):
@@ -71,6 +71,7 @@ def load_data(dataset, train="", valid="", test="",
             dataset = new_path
     print('loading data into model')
     if(data_file == 'mnist.pkl.gz'):
+        print("USING MNIST PICKLE")
         with gzip.open(dataset, 'rb') as f:
             try:
                 train_set, valid_set, test_set = pickle.load(f,
@@ -85,9 +86,16 @@ def load_data(dataset, train="", valid="", test="",
         rval = [(train_set_x, train_set_y), (valid_set_x, valid_set_y),
                 (test_set_x, test_set_y)]
     else:
-        if (train != "" and valid != "" and test != ""):
-                rval = load_data_csv(train_set, valid_set, test_set,
-                                     delimiter=delimiter)
+        if (".csv" in data_file):
+                print("CREATING CSV FILE SETS")
+                dataset_name = dataset[:-4]
+                train_set = dataset_name + "_train.csv"
+                valid_set = dataset_name + "_valid.csv"
+                test_set = dataset_name + "_test.csv"
+                if(file_exists(train_set) and file_exists(train_set) and
+                   file_exists(test_set)):
+                    rval = load_data_csv(train_set, valid_set, test_set,
+                                         delimiter=delimiter)
         else:
             print('Data file does not have a valid format please either \
                    run demo or use a CSV as input\n')
@@ -97,8 +105,7 @@ def load_data(dataset, train="", valid="", test="",
     return rval
 
 
-def load_data_csv(train_set, valid_set, test_set, delimiter=';'):
-
+def load_data_csv(train_set, valid_set, test_set, delimiter=','):
     train_xy = load_csv(train_set, delimiter)
     valid_xy = load_csv(valid_set, delimiter)
     test_xy = load_csv(test_set, delimiter)
@@ -110,11 +117,11 @@ def load_data_csv(train_set, valid_set, test_set, delimiter=';'):
     rval = [(train_set_x, train_set_y), (valid_set_x, valid_set_y),
             (test_set_x, test_set_y)]
 
+
     return rval
 
 
 def load_csv(path, delimiter):
-    v = DictVectorizer(sparse=False)
     try:
         f_csv_in = open(path)
     except:
@@ -122,10 +129,22 @@ def load_csv(path, delimiter):
         sys.exit(2)
 
     print 'File given in ' + path + ' successfully loaded'
-    f_csv_in = csv.DictReader(f_csv_in)
-    data = v.fit_transform(f_csv_in)
+    csv_data = pd.read_csv(f_csv_in, delimiter=delimiter)
+    csv_data = pd.get_dummies(csv_data)
+    # plot_input(csv_data, path)
+    data = csv_data.values
+    vector = np.vectorize(int)
+    data = (data[:, 0:-2], vector(np.transpose(data[:, -1:]).flatten()))
     return data
 
+
+def plot_input(csv_data, path):
+    data_dir, data_file = os.path.split(path)  
+    output_file=data_file[:-4] + "_" + str(date.today())
+    print("Plotting Input Data: " + output_file)
+    format='pdf'
+    csv_data.plot(kind='line',subplots=True)
+    plt.savefig(output_file, format=format)
 
 def plot_errors(errors, epochs, dataset_name):
     plt.xlabel("Epoch")
@@ -159,3 +178,32 @@ def append_prediction(preds, dataset_name):
         for pred in preds:
             writer.writerow({'Date': str(date.today()), 'Prediction': pred})
     pass
+
+
+def file_exists(file):
+    return os.path.exists(file)
+
+
+def is_valid_file(parser, arg):
+    arg = os.path.abspath(arg)
+    if not os.path.exists(arg):
+        parser.error("The file %s does not exists!" % arg)
+    else:
+        return arg
+
+def data_file_name(dataset):
+    data_file = os.path.split(dataset)[1]
+    return data_file[:-4]
+
+
+def find_two_closest_factors(n):
+    deltas = []
+    factors = {}
+    if n <= 1:
+        return (1, 1)
+    for i in range(1, n):
+        if n % i == 0:
+            delta = abs(i - n/i)
+            deltas.append(delta)
+            factors[delta] = (i, n/i)
+    return factors[min(deltas)]

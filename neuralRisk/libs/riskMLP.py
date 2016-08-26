@@ -19,6 +19,10 @@ class riskMLP(object):
             activation = T.tanh
         elif activation_function == "relu":
             activation = T.nnet.relu
+        elif activation_function == "gausian":
+            activation = self.gausian
+        elif activation_function == "sigmoid":
+            activation = T.nnet.nnet.sigmoid
 
         self.hiddenLayer = HiddenLayer(
                 rng=rng,
@@ -95,3 +99,7 @@ class riskMLP(object):
         self.hiddenLayer.b.set_value(params[1].get_value(), borrow=True)
         self.logRegressionLayer.W.set_value(params[2].get_value(), borrow=True)
         self.logRegressionLayer.b.set_value(params[3].get_value(), borrow=True)
+    
+
+    def gausian(x):
+        return T.exp(T.sqr(x))

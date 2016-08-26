@@ -1,3 +1,4 @@
+#!/usr/bin/python
 '''
     @author Charis - Nicolas Georgiou
     inspiration is: https://github.com/tajo/deeplearning/blob/master/run.py
@@ -7,6 +8,7 @@ import csv
 import os
 import json
 import sys
+from neuralRisk.libs import utils
 from neuralRisk.libs import riskNN
 
 '''
@@ -27,52 +29,100 @@ def run(tasks):
 
 
 def run_task(params):
-    if not os.path.isfile(params['logfile']) or \
-       not os.stat(params['logfile'])[6] == 0:
-        with open(params['logfile'], "wb") as logfile:
-            data = ['date_time',
-                    'dataset',
-                    'target_name',
-                    'finetune_lr',
-                    'pretraining_epochs',
-                    'pretrain_lr',
-                    'batch_size',
-                    'n_ins',
-                    'n_outs',
-                    'hidden_layers_sizes',
-                    'valid_perf (%)',
-                    'test_perf (%)',
-                    'test_recall',
-                    'run_time (min)']
-            writer = csv.writer(logfile, delimiter=params['delimiter'])
-            writer.writerow(data)
-    # number of target columns in dataset to they can be split
-    try:
-        targets = params['targets']
-    except:
-        targets = 3  # default for stock datasets
+    if(params['setting'] == 'train'):
+        if not os.path.isfile(params['logfile']) or \
+           not os.stat(params['logfile'])[6] == 0:
+            with open(params['logfile'], "wb") as logfile:
+                data = ['date_time',
+                        'dataset',
+                        'target_name',
+                        'finetune_lr',
+                        'pretraining_epochs',
+                        'pretrain_lr',
+                        'batch_size',
+                        'n_ins',
+                        'n_outs',
+                        'hidden_layers_sizes',
+                        'valid_perf (%)',
+                        'test_perf (%)',
+                        'test_recall',
+                        'run_time (min)']
+        for dataset in params['datasets']:
+            riskNN.create_NN(params['learning_rate'],
+                             params['L1_reg'],
+                             params['L2_reg'],
+                             params['training_epochs'],
+                             dataset,
+                             params['n_ins'],
+                             params['n_outs'],
+                             params['batch_size'],
+                             params['hidden_layers_sizes'],
+                             params['logfile'],
+                             params['activation'])
+            # writer = csv.writer(logfile, delimiter=params['delimiter'])
+            # writer.writerow(data)
 
-    for dataset in params['datasets']:
-        riskNN.create_NN(params['finetune_lr'],
-                         params['target_name'],
-                         params['pretraining_epochs'],
-                         params['pretrain_lr'],
-                         params['training_epochs'],
-                         dataset,
-                         params['batch_size'],
-                         params['n_ins'],
-                         params['hidden_layers_sizes'],
-                         params['n_outs'],
-                         params['logfile'],
-                         targets)
+    elif(params['setting'] == 'predict'):
+        for dataset in params['datasets']:
+            riskNN.predict(dataset,
+                           params['best_model'],
+                           params['batch_size'],
+                           params['n_ins'], 
+                           params['hidden_layers_sizes'],
+                           params['n_outs'],
+                           params['activation']
+                          )
+
+
+def get_parser():
+    """ Get the parser fo any script """
+    from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
+    parser = ArgumentParser(description=__doc__,
+                            formatter_class=ArgumentDefaultsHelpFormatter)
+    parser.add_argument("-d", "--demo",
+                        action='store_true',
+                        dest="runDemo",
+                        default=False,
+                        help="runs mnist demo")
+    parser.add_argument("-pd", '--predict-demo',
+                        action='store_true',
+                        dest="predictDemo",
+                        default=False,
+                        help="runs a demo prediction")
+    parser.add_argument("-j", "--json",
+                        dest="json_data",
+                        type=lambda x: utils.is_valid_file(parser, x),
+                        default=None,
+                        help="input json when not running demo")
+    parser.add_argument("-o", "--output",
+                        dest="j")
+    return parser
+
+"""
+#if __name__ == '__main__':
+#    try:
+#        # first argument is a json config file as parameter
+#        json_data = open(sys.argv[1])
+#    except:
+#        print 'You have to specify a valid JSON file for the computing \
+#               tasks to start'
+#        sys.exit()
+#    data = json.load(json_data)
+#    run(data['tasks'])
+"""
 
 if __name__ == '__main__':
-    try:
-        # first argument is a json config file as parameter
-        json_data = open(sys.argv[1])
-    except:
-        print 'You have to specify a valid JSON file for the computing \
-               tasks to start'
-        sys.exit()
-    data = json.load(json_data)
-    run(data['tasks'])
+    args = get_parser().parse_args()
+    if args.runDemo:
+        riskNN.create_NN()
+    if args.predictDemo:
+        riskNN.predict()
+    if args.json_data is not None:
+        try:
+            json_data = open(args.json_data)
+        except:
+            print 'You have to specify a valid JSON file to start computing'
+            sys.exit()
+        data = json.load(json_data)
+        run(data['tasks'])
+

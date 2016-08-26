@@ -1,2 +1,4 @@
 *\.pyc
+neuralRisk/testData
 *\.pkl
+venv

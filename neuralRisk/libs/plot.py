@@ -1,3 +1,5 @@
+#!/usr/bin/python
+# coding=utf8
 """
 This is a class to plot the graphs of the neuralRisk Application
 Copyright © 2016 Charis - Nicolas Georgiou
@@ -23,17 +25,23 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 Code inspiration from here:
 https://github.com/crmne/Genretron-Theano/blob/master/plot.py
+and
+https://github.com/twuilliam/ift6266h14_wt/blob/master/post_01/mlp.py
 
 """
 
 import os
+import sys
 import utils
+import numpy as np
 import matplotlib as mpl
+from datetime import date
 
 
 class Plot(object):
     def __init__(self, *what_to_plot):
-        """init function for our Plot class
+        """
+            init function for our Plot class
 
         :*what_to_plot:  Strings of what to
         plot
@@ -41,27 +49,37 @@ class Plot(object):
         for x in what_to_plot:
             assert isinstance(x, str)
         self.data = {key: [] for key in what_to_plot}
-        self.length = 0
-        self.fig = mpl .pyplot.figure()
-        mpl.pyplot.ion()
-        mpl.pyplot.show()
+        self.length = {key: [] for key in what_to_plot}
+        # self.fig = mpl .pyplot.figure()
+        # mpl.pyplot.ion()
+        # mpl.pyplot.show()
 
-    def append(self, key, value):
+    def append(self, key, value, epoch):
         if key not in self.data:
             raise StandardError("Plot: Key %s not found." % key)
         self.data[key].append(value)
-        self.length = max([len(v) for k, v in self.data.iteritems()])
+        self.length[key].append(epoch)
+
 
     def update_plot(self):
-        x = self.length
         dim_x, dim_y = utils.find_two_closest_factors(len(self.data))
+        legend = [] 
 
-        i = 1
         for k, v in self.data.iteritems():
             if len(v) != 0:
-                mpl.pyplot.subplot(dim_x, dim_y, i)
-                mpl.pyplot.plot(x, v[-1], 'r.-')
-                mpl.pyplot.title(k)
-            i = i + 1
+                y=np.array(v)
+                mpl.pyplot.plot(self.length[k], y, label=k)
 
-    def save_plot(self, format='PDF'):
+        mpl.pyplot.legend()
+        mpl.pyplot.ylabel('MSE')
+        mpl.pyplot.xlabel('epoch')
+
+
+    def save_plot(self, epoch=0, task_n=1, file_format='PDF'):
+        output_folder = os.path.split(__file__)[0]
+        output_file = \
+        os.path.join(output_folder,'Plot_{:d}_{:%Y_%m_%d_%H_%M}.{}'.format(task_n,date.today(),
+                                                                          file_format))
+        self.update_plot()
+        print("saving_plot")
+        mpl.pyplot.savefig(output_file, format=file_format)

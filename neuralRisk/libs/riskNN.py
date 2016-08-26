@@ -1,5 +1,6 @@
 """
 This is the main class for our neuralRisk application
+
 Copyright  2016 Charis - Nicolas Georgiou
 
 Permission is hereby granted, free of charge, to any person obtaining
@@ -30,81 +31,23 @@ import numpy as np
 import theano.tensor as T
 import theano
 import six.moves.cPickle as pickle
-from logistic_reg import LogisticRegression
-from mlp import HiddenLayer
+from riskMLP import riskMLP
 import sys
 import os
+import sys
 import timeit
 from datetime import date
-from utils import load_data
+import matplotlib
+from plot import Plot
+from utils import load_data,data_file_name
 
 __docformat__ = 'restructedtext en'
 
 
-class riskMLP(object):
-    """ Multilayer NN for classifying risk
-
-    A multilayer perceptron is a feedforward artificial neural network model
-    that has one layer or more of hidden units and nonlinear activations.
-    Intermediate layers usually have as activation function tanh or the
-    sigmoid function (defined here by a ``HiddenLayer`` class)  while the
-    top layer is a softmax layer (defined here by a ``LogisticRegression``
-    class).
-    """
-    def __init__(self, rng, input, n_in, n_hidden, n_out,
-                    activation_function="tanh"):
-        if activation_function == "tanh":
-            activation = T.tanh
-        elif activation_function == "relu":
-            activation = T.nnet.relu
-
-        self.hiddenLayer = HiddenLayer(
-                rng=rng,
-                input=input,
-                n_in=n_in,
-                n_out=n_hidden,
-                activation=activation
-                )
-        self.logRegressionLayer = LogisticRegression(
-                input=self.hiddenLayer.output,
-                n_in=n_hidden,
-                n_out=n_out
-                )
-        # L1 norm ; one regularization option is to enforce L1 norm
-        # to be small
-        self.L1 = (
-                abs(self.hiddenLayer.W).sum() +
-                abs(self.logRegressionLayer.W).sum()
-                )
-
-        # square of L2 norm ; one regularization option is to enforce
-        # square of L2 norm to be small
-        self.L2_sqr = (
-                (self.hiddenLayer.W ** 2).sum() +
-                (self.logRegressionLayer.W ** 2).sum()
-                )
-
-        # negative log likelihood of the MLP is given by the negative
-        # log likelihood of the output of the model, computed in the
-        # logistic regression layer
-        self.negative_log_likelihood = (
-                self.logRegressionLayer.negative_log_likelihood
-                )
-
-        # same holds for the function computing the number of errors
-        self.errors = self.logRegressionLayer.errors
-
-        # the parameters of the model are the parameters of the two layer
-        # it is made out of
-        self.params = self.hiddenLayer.params + self.logRegressionLayer.params
-
-        # keep track of model input
-        self.input = input
-
-
 def create_NN(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
               dataset='mnist.pkl.gz', n_in=28*28, n_out=10, batch_size=20,
-              n_hidden=500, logfile='test.csv'):
+              n_hidden=500, logfile='test.csv', activation='tanh',
+              load_params=False):
     """
     Demonstrate stochastic gradient descent optimization for a multilayer
     perceptron
@@ -133,7 +76,7 @@ def create_NN(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
 
     """
     datasets = load_data(dataset)
-
+    data_name = data_file_name(dataset)
     train_set_x, train_set_y = datasets[0]
     valid_set_x, valid_set_y = datasets[1]
     test_set_x, test_set_y = datasets[2]
@@ -144,6 +87,7 @@ def create_NN(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
     n_test_batches = test_set_x.get_value(borrow=True).shape[0] // batch_size
 
     print('...building the model')
+    # theano.config.compute_test_value = 'warn'
 
     # allocate symbolic vars for the data
     index = T.lscalar()
@@ -159,8 +103,11 @@ def create_NN(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
             n_in=n_in,
             n_hidden=n_hidden,
             n_out=n_out,
+            activation_function=activation
             )
 
+    if(load_params):
+        classifier.load_model(filename=best_model)
     # the cost we minimize during trainingis the negative log likelihood of
     # the model plus the regularization terms (L1 and L2); cost is expressed
     # symbolically (THEANO)
@@ -171,7 +118,8 @@ def create_NN(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
             )
 
     # compile a Theano function that computes the mistakes that are made
-# by the model on a minibatch
+    # by the model on a minibatch
+
     test_model = theano.function(
             inputs=[index],
             outputs=classifier.errors(y),
@@ -189,7 +137,6 @@ def create_NN(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
                 y: valid_set_y[index * batch_size:(index + 1) * batch_size]
                 }
             )
-
     # compute the gradient of cost with respect to theta (sorted in params)
     gparams = [T.grad(cost, param) for param in classifier.params]
 
@@ -223,15 +170,17 @@ def create_NN(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
     ###############
     print('... training')
 
+    plot = Plot('Validation-Loss', 'Test-Loss')
+
     # early-stopping parameters ( in order to stop on mistakes)
     patience = 10000        # look as this many samples regardless
-    patience_increase = 2   # wait this much longer when a new best is found
+    patience_increase = 5   # wait this much longer when a new best is found
 
     improvement_threshold = 0.995   # a relative improvement of this much
                                     # is considered significant
     validation_frequency = min(n_train_batches, patience // 2)
                                 # go through this many
-                                # minivatches before checking the network
+                                # minibatches before checking the network
                                 # on the validation set; in this case we
                                 # check every epoch
     best_validation_loss = np.inf
@@ -241,12 +190,14 @@ def create_NN(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
 
     epoch = 0
     done_looping = False
+    avg_cost = []
 
     while (epoch < n_epochs) and (not done_looping):
         epoch = epoch + 1
         for minibatch_index in range(n_train_batches):
 
             minibatch_avg_cost = train_model(minibatch_index)
+            avg_cost.append(minibatch_avg_cost)
             # iteration number
             iter = (epoch - 1) * n_train_batches + minibatch_index
 
@@ -265,6 +216,8 @@ def create_NN(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
                             this_validation_loss * 100.
                             )
                         )
+                plot.append('Validation-Loss', this_validation_loss, epoch)
+
                 # if we got the best validation score until now
                 if this_validation_loss < best_validation_loss:
                     # improve patience if loss improvement is good enough
@@ -284,13 +237,19 @@ def create_NN(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
 
                     print(('    epoch %i, minibatch %i/%i, test error of '
                            'best model %f %%') %
-                          (epoch, minibatch_index + 1, n_train_batches,
-                           test_score * 100.))
-                    with open('best_model_'+str(date.today())+'.pkl', 'wb') \
+                          (epoch, minibatch_index + 1, n_train_batches, test_score * 100.))
+                    plot.append('Test-Loss',test_score, epoch)
+
+                    classifier.save_model(filename='best_model_'+data_name+'_'+str(date.today())+'.pkl')
+                    """ OLD PICKLE METHOD
+                    with open('best_model_'+data_name+'_'+str(date.today())+'.pkl', 'wb') \
                             as f:
                             pickle.dump((classifier.params,
                                          classifier.logRegressionLayer.y_pred,
-                                         classifier.input), f)
+                                         classifier.hiddenLayer.input), f)
+                            """
+                else:
+                    plot.append('Test-Loss', np.NaN, 0)
 
             if patience <= iter:
                 done_looping = True
@@ -304,9 +263,11 @@ def create_NN(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
            os.path.split(__file__)[1] +
            ' ran for %.2fm' % ((end_time - start_time) / 60.)),
           file=sys.stderr)
+    plot.save_plot()
 
-
-def predict(dataset, n_hidden, n_in, n_out):
+def predict(dataset='mnist.pkl.gz',
+            best_model='best_model_mnist.pk_2016-08-23.pkl', batch_size=20,
+            n_in=28*28, n_hidden=50, n_out=10, activation_function='tanh'):
     """
     An example of how to load a trained model and use it
     to predict labels. Modified in order to be able to pickle
@@ -321,7 +282,6 @@ def predict(dataset, n_hidden, n_in, n_out):
 
     rng = np.random.RandomState(1234)
     x = T.matrix('x')
-
     # load the saved model
     # classifier = pickle.load(open('best_model.pkl'))
     # modified according to stackoverflow post, since
@@ -331,21 +291,19 @@ def predict(dataset, n_hidden, n_in, n_out):
                 input=x,
                 n_in=n_in,
                 n_hidden=n_hidden,
-                n_out=n_out
+                n_out=n_out,
+                activation_function=activation_function
             )
-
-    classifier.params, classifier.logRegressionLayer.y_pred,
-    classifier.input = pickle.load(open('best_model.pkl'))
-
+    classifier.load_model(filename=best_model)
+   #  classifier.params, classifier.logRegressionLayer.y_pred,
+   #  classifier.input = pickle.load(open(best_model,'rb'))
+   #  print(type(classifier.input[2]))
     # compile a predictor function
-    predict_model = theano.function(
-        inputs=[classifier.input],
-        outputs=classifier.logRegressionLayer.y_pred)
 
+    predict_model = theano.function(
+        inputs=[classifier.hiddenLayer.input],
+        outputs=classifier.logRegressionLayer.y_pred) 
     print("expected to get: ", test_set_y[:10])
     predicted_values = predict_model(test_set_x[:10])
     print("Predicted values for the first 10 examples in test set:")
     print(predicted_values)
-
-if __name__ == '__main__':
-    create_NN()

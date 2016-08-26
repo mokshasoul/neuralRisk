@@ -44,9 +44,9 @@ class HiddenLayer(object):
                         low=-np.sqrt(6. / (n_in + n_out)),
                         high=np.sqrt(6. / (n_in + n_out)),
                         size=(n_in, n_out)
-                        ),
+                    ),
                     dtype=theano.config.floatX
-                    )
+            )
             if activation == theano.tensor.nnet.sigmoid:
                 W_values *= 4
 
@@ -63,7 +63,7 @@ class HiddenLayer(object):
         self.output = (
                 lin_output if activation is None
                 else activation(lin_output)
-                )
+        )
         # model parameters
         self.params = [self.W, self.b]
 
