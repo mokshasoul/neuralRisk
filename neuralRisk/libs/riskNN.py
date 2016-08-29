@@ -74,6 +74,7 @@ def create_NN(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
                  http://www.iro.umontreal.ca/~lisa/deep/data/mnist/mnist.pkl.gz
 
 
+    TODO: Add a load_params value in order to load a model
     """
     datasets = load_data(dataset)
     data_name = data_file_name(dataset)
@@ -106,8 +107,6 @@ def create_NN(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
             activation_function=activation
             )
 
-    if(load_params):
-        classifier.load_model(filename=best_model)
     # the cost we minimize during trainingis the negative log likelihood of
     # the model plus the regularization terms (L1 and L2); cost is expressed
     # symbolically (THEANO)
@@ -237,17 +236,12 @@ def create_NN(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
 
                     print(('    epoch %i, minibatch %i/%i, test error of '
                            'best model %f %%') %
-                          (epoch, minibatch_index + 1, n_train_batches, test_score * 100.))
-                    plot.append('Test-Loss',test_score, epoch)
+                          (epoch, minibatch_index + 1, n_train_batches,
+                           test_score * 100.))
+                    plot.append('Test-Loss', test_score, epoch)
 
-                    classifier.save_model(filename='best_model_'+data_name+'_'+str(date.today())+'.pkl')
-                    """ OLD PICKLE METHOD
-                    with open('best_model_'+data_name+'_'+str(date.today())+'.pkl', 'wb') \
-                            as f:
-                            pickle.dump((classifier.params,
-                                         classifier.logRegressionLayer.y_pred,
-                                         classifier.hiddenLayer.input), f)
-                            """
+                    classifier.save_model(filename='best_model_'+data_name+'_'
+                                          + str(date.today())+'.pkl')
                 else:
                     plot.append('Test-Loss', np.NaN, 0)
 
@@ -265,6 +259,7 @@ def create_NN(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
           file=sys.stderr)
     plot.save_plot()
 
+
 def predict(dataset='mnist.pkl.gz',
             best_model='best_model_mnist.pk_2016-08-23.pkl', batch_size=20,
             n_in=28*28, n_hidden=50, n_out=10, activation_function='tanh'):
@@ -273,6 +268,10 @@ def predict(dataset='mnist.pkl.gz',
     to predict labels. Modified in order to be able to pickle
     model taken from :
     https://stackoverflow.com/questions/34068922/save-theano-model-doenst-work-for-mlp-net
+    Which didn't work so we implemented a save and load function in the
+    classifier itself
+    TODO: Make save and load be more dynamical e.g. take into account multiple
+    hidden layers
     """
     # We can test it on some examples from test test
     datasets = load_data(dataset)
@@ -295,14 +294,11 @@ def predict(dataset='mnist.pkl.gz',
                 activation_function=activation_function
             )
     classifier.load_model(filename=best_model)
-   #  classifier.params, classifier.logRegressionLayer.y_pred,
-   #  classifier.input = pickle.load(open(best_model,'rb'))
-   #  print(type(classifier.input[2]))
     # compile a predictor function
 
     predict_model = theano.function(
         inputs=[classifier.hiddenLayer.input],
-        outputs=classifier.logRegressionLayer.y_pred) 
+        outputs=classifier.logRegressionLayer.y_pred)
     print("expected to get: ", test_set_y[:10])
     predicted_values = predict_model(test_set_x[:10])
     print("Predicted values for the first 10 examples in test set:")

@@ -9,6 +9,7 @@ import os
 import json
 import sys
 from libs import utils
+from libs.split import main as split
 from libs import riskNN
 
 '''
@@ -19,7 +20,7 @@ from libs import riskNN
 def run(tasks):
     task_num = 1
     for task_params in tasks:
-        print '####### PROCESSING TASK NUMBER {} ######'.format(task_num)
+        print('####### PROCESSING TASK NUMBER {} ######'.format(task_num))
         run_task(task_params)
         task_num += 1
 
@@ -59,19 +60,18 @@ def run_task(params):
                              params['hidden_layers_sizes'],
                              params['logfile'],
                              params['activation'])
-            # writer = csv.writer(logfile, delimiter=params['delimiter'])
-            # writer.writerow(data)
+            writer = csv.writer(logfile, delimiter=params['delimiter'])
+            writer.writerow(data)
 
     elif(params['setting'] == 'predict'):
         for dataset in params['datasets']:
             riskNN.predict(dataset,
                            params['best_model'],
                            params['batch_size'],
-                           params['n_ins'], 
+                           params['n_ins'],
                            params['hidden_layers_sizes'],
                            params['n_outs'],
-                           params['activation']
-                          )
+                           params['activation'])
 
 
 def get_parser():
@@ -94,22 +94,14 @@ def get_parser():
                         type=lambda x: utils.is_valid_file(parser, x),
                         default=None,
                         help="input json when not running demo")
+    parser.add_argument("-s", "--split",
+                        dest='filetosplit',
+                        type=lambda x: utils.is_valid_file(parser, x),
+                        default=None,
+                        help="input CSV file to split")
     parser.add_argument("-o", "--output",
                         dest="j")
     return parser
-
-"""
-#if __name__ == '__main__':
-#    try:
-#        # first argument is a json config file as parameter
-#        json_data = open(sys.argv[1])
-#    except:
-#        print 'You have to specify a valid JSON file for the computing \
-#               tasks to start'
-#        sys.exit()
-#    data = json.load(json_data)
-#    run(data['tasks'])
-"""
 
 if __name__ == '__main__':
     args = get_parser().parse_args()
@@ -121,8 +113,13 @@ if __name__ == '__main__':
         try:
             json_data = open(args.json_data)
         except:
-            print 'You have to specify a valid JSON file to start computing'
+            print('You have to specify a valid JSON file to start computing')
             sys.exit()
         data = json.load(json_data)
         run(data['tasks'])
-
+    if args.filetosplit is not None:
+        try:
+            split(args.filetosplit)
+        except:
+            print('Oops something died Jim')
+            sys.exit()

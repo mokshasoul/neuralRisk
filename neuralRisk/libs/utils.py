@@ -24,13 +24,8 @@ import os
 import gzip
 import cPickle as pickle
 import numpy as np
-from numpy import loadtxt
 import theano
 import pandas as pd
-import matplotlib.pyplot as plt
-#from mlp_toolkits.mplot3d import Axes3D
-#from matplotlib import cm
-from sklearn.feature_extraction import DictVectorizer
 from datetime import date
 import theano.tensor as T
 import csv
@@ -39,6 +34,7 @@ import sys
 # %matlpotlib inline
 
 __author__ = 'c.n.georgiou'
+
 
 def shared_dataset(data_xy, borrow=True):
     """ Function that loads the datasets into shared variables
@@ -57,7 +53,7 @@ def shared_dataset(data_xy, borrow=True):
 
 
 def load_data(dataset, delimiter=',', borrow=True):
-
+    dataset = os.path.abspath(dataset)
     data_dir, data_file = os.path.split(dataset)
     if data_dir == "" and not os.path.isfile(dataset):
         # Check if dataset is in data directory
@@ -88,19 +84,24 @@ def load_data(dataset, delimiter=',', borrow=True):
     else:
         if (".csv" in data_file):
                 print("CREATING CSV FILE SETS")
-                dataset_name = dataset[:-4]
-                train_set = dataset_name + "_train.csv"
-                valid_set = dataset_name + "_valid.csv"
-                test_set = dataset_name + "_test.csv"
+                dataset_name = data_file[:-4]
+                train_set = os.path.join(data_dir, dataset_name + "_train.csv")
+                valid_set = os.path.join(data_dir, dataset_name + "_valid.csv")
+                test_set = os.path.join(data_dir,  dataset_name + "_test.csv")
                 if(file_exists(train_set) and file_exists(train_set) and
                    file_exists(test_set)):
                     rval = load_data_csv(train_set, valid_set, test_set,
                                          delimiter=delimiter)
+                else:
+                    print('It appears you have a valid dataset but forgot to \
+                          split it or one of them is missing, \
+                          the programm will exit NOW!')
+                    sys.exit(2)
         else:
-            print('Data file does not have a valid format please either \
+            print('Data file either does not have a valid format please either \
                    run demo or use a CSV as input\n')
             print('The program will exit NOW!')
-            sys.exit()
+            sys.exit(2)
 
     return rval
 
@@ -117,7 +118,6 @@ def load_data_csv(train_set, valid_set, test_set, delimiter=','):
     rval = [(train_set_x, train_set_y), (valid_set_x, valid_set_y),
             (test_set_x, test_set_y)]
 
-
     return rval
 
 
@@ -125,12 +125,13 @@ def load_csv(path, delimiter):
     try:
         f_csv_in = open(path)
     except:
-        print 'File given in' + path + ' does not exist'
+        print('File given in' + path + ' does not exist')
         sys.exit(2)
 
-    print 'File given in ' + path + ' successfully loaded'
+    print('File given in ' + path + ' successfully loaded')
     csv_data = pd.read_csv(f_csv_in, delimiter=delimiter)
     csv_data = pd.get_dummies(csv_data)
+    csv_data.to_csv()
     # plot_input(csv_data, path)
     data = csv_data.values
     vector = np.vectorize(int)
@@ -138,8 +139,9 @@ def load_csv(path, delimiter):
     return data
 
 
+"""
 def plot_input(csv_data, path):
-    data_dir, data_file = os.path.split(path)  
+    data_dir, data_file = os.path.split(path)
     output_file=data_file[:-4] + "_" + str(date.today())
     print("Plotting Input Data: " + output_file)
     format='pdf'
@@ -156,12 +158,6 @@ def plot_errors(errors, epochs, dataset_name):
 
 
 def plot_predictions(epochs, costs):
-    """TODO: Docstring for plot_predictions.
-
-    :arg1: TODO
-    :returns: TODO
-
-    """
     plt.title("Epochs to cost")
     plt.xlabel("Epoch")
     plt.ylabel("Cost function output")
@@ -169,6 +165,8 @@ def plot_predictions(epochs, costs):
     plt.savefig("dataset_name" + "cost-function.png")
     plt.show()
     plt.close()
+
+"""
 
 
 def append_prediction(preds, dataset_name):
@@ -180,8 +178,8 @@ def append_prediction(preds, dataset_name):
     pass
 
 
-def file_exists(file):
-    return os.path.exists(file)
+def file_exists(data_file):
+    return os.path.isfile(data_file)
 
 
 def is_valid_file(parser, arg):
@@ -190,6 +188,7 @@ def is_valid_file(parser, arg):
         parser.error("The file %s does not exists!" % arg)
     else:
         return arg
+
 
 def data_file_name(dataset):
     data_file = os.path.split(dataset)[1]
