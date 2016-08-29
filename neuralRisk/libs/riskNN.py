@@ -30,16 +30,13 @@ from __future__ import print_function
 import numpy as np
 import theano.tensor as T
 import theano
-import six.moves.cPickle as pickle
 from riskMLP import riskMLP
 import sys
 import os
-import sys
 import timeit
 from datetime import date
-import matplotlib
 from plot import Plot
-from utils import load_data,data_file_name
+from utils import load_data, data_file_name
 
 __docformat__ = 'restructedtext en'
 
@@ -234,7 +231,7 @@ def create_NN(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
                                    in range(n_test_batches)]
                     test_score = np.mean(test_losses)
 
-                    print(('    epoch %i, minibatch %i/%i, test error of '
+                    print(('epoch %i, minibatch %i/%i, test error of '
                            'best model %f %%') %
                           (epoch, minibatch_index + 1, n_train_batches,
                            test_score * 100.))
@@ -299,7 +296,9 @@ def predict(dataset='mnist.pkl.gz',
     predict_model = theano.function(
         inputs=[classifier.hiddenLayer.input],
         outputs=classifier.logRegressionLayer.y_pred)
-    print("expected to get: ", test_set_y[:10])
-    predicted_values = predict_model(test_set_x[:10])
-    print("Predicted values for the first 10 examples in test set:")
+    print("expected to get: ")
+    print(test_set_y)
+    predicted_values = predict_model(test_set_x)
+    print("Predicted values for the test set:")
+    print(type(predicted_values))
     print(predicted_values)

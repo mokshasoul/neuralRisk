@@ -34,31 +34,28 @@ import os
 import pandas as pd
 import numpy as np
 
-# input_file = sys.argv[1]
-# delimiter = sys.argv[2]
-# filepath, filename = os.path.split(input_file)
-# filename = filename[:-4]
-
 
 def main(input_file, delimiter=";", split_percent=80,
          cross_validation=False):
     input_file = os.path.abspath(input_file)
-    if ".csv" in input_file:
-        transform_set = pd.read_csv(input_file, sep=delimiter)
-    else:
-        transform_set = pd.read_excel(input_file)
-    print(transform_set)
+    try:
+        if ".csv" in input_file:
+            transform_set = pd.read_csv(input_file, sep=delimiter)
+        else:
+            transform_set = pd.read_excel(input_file)
+    except:
+        print("Hey Jim something happened while reading the file")
+        sys.exit(2)
 
+    transform_set = pd.get_dummies(transform_set)
     train_shape = transform_set.shape
 
-    df = pd.DataFrame(transform_set)
+    new_index = np.random.permutation(transform_set.index)
 
-    train_set = df.reindex(np.random.permutation(df.index))
+    train_set = transform_set.reindex(new_index)
 
     indice_percent = int((train_shape[0]/100.0)*split_percent)
     indice_percent_valid = int((indice_percent/100.0) * split_percent)
-
-    print(indice_percent)
     filepath, filename = os.path.split(input_file)
     filename = filename[:-4]
     output_train = filename + "_train.csv"
@@ -72,5 +69,3 @@ def main(input_file, delimiter=";", split_percent=80,
     train_set[indice_percent:].to_csv(
         os.path.join(filepath, output_test), header=True, index=False)
     print(output_train + " " + output_valid + " " + output_test)
-
-# main(input_file, delimiter)

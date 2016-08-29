@@ -45,6 +45,7 @@ Neural networks and deep learning are in essence machine learning algorithms, wh
 
 \cite{mitchel97} defines the learning part of a learning algorithm as `A computer program is said to learn from experience \textit{E} with respect to some class of tasks \textit{T} and performance measure \textit{P}, if its performance at task in \textit{T}, as measured by \textit{P}, improves with experience \textit{E}.`. The task \textit{T}, is more accurately a task, that is difficult to solve with a fixed program, traditional program, and it is not to be confused with the process of learning, since the task itself is the problem that needs to be solved.
 
+\subsubsection{Network Types}
 The learning process is based on how a machine learning process will process an \textbf{example}, that is composed of a collection of \textbf{features}, where a vector \[x in R^n \] and each \[x_i\] of the vector is just another feature of the example. An example of a feature are the values of the individual pixels in an image. Some of the more common tasks that can be solved by machine learning are as follows:
 \begin{itemize}
     \item Classification: The task here is to specify in which category \textit{k} a certain input belongs to. These type of algorithms are used for example for classifying images to objects. A function \[f(x)\] is computed based on the data learned.
@@ -56,9 +57,28 @@ The learning process is based on how a machine learning process will process an 
     \item Synthesis and sampling: The task is to generate new examples, based on the already existing data. This is interesting as for example the program might be tasked to create a movie script, or create large volumes of music.
     \item Imputation of missing values: The task is to be able to predict missing values in datasets
     \item Denoising: A corrupted example is given which was corrupted by an unknown process, and the program hast to predict a clean example through another clean example x
-    \item Density estimation or probability mass function estimation: 
+    \item Density estimation or probability mass function estimation:  Advanced use-case where the machine learns a probability density function
 \end{itemize}
 % Literature chosen based on what
+
+\subsubsection{Performance Measure \textit{P}}
+
+The performance measure evaluates, quantitavely how good the network performs for a specific task. As en example in the case of classification the measure would be the accuracy of the network in predicting correct results. Usually the performance is measured based on the error rate, and to evaluate the performance after the reaching a satisfying error rate, the performance is measured based on a test-set of data that the network never saw before.
+
+\subsubsection{The Experience, \textit{E}}
+
+Machine learning algorithms, as illustrated above can be split in either \textbf{supervised} or \textbf{unsupervised} learning algorithms. The experience discussed here is the is the \textbf{dataset} which is chosen as an input for the algorithm. In an \textbf{unsupervised} learning algorithm, the algorithm experiences the whole dataset and tries to extract useful properties out of it without labeling by a user, for example in a denoising network. The formula for 
+
+In a \textbf{supervised} learning algorithm, the algorithm experiences the dataset which is asossciated to a specific \textbf{label} or \textbf{target}. This is generally used as part of classification algorithms, such as when classifying plants based on the features of their iris. The formula for supervised learning is usually (book 105)
+
+A clear distinction between the two has still to be defined formally, yet this is above the scope of this paper.
+
+\subsubsection{Overfitting, underfitting and capacity}
+
+One of the most important aspects in neural networks is \textbf{overfitting} and \textbf{underfitting}. These two terms generally mean that due to outliers in the data the generated model either has a large gap between the training error and the test error, in the case of overfitting, or the training set cannot attain a low error value, as is the case when underfitting. These values can be controlled through an attribute called \textbf{capacity}. Capacity generally expresses a wide variety of functions, which will not be explained here, but one example would be to standardize the input data.
+
+
+
 \section{Literature Review}
 \label{sec:literature_review}
 This section will be reviewing available literature that focuses on creating neural networks to asses risk in different settings. Some of the literature reviewed here does not directly apply to the financial sector, yet yields useful information in what kind of methodology should be applied in order to create the implementation detailed further down in this paper.
@@ -66,9 +86,10 @@ This section will be reviewing available literature that focuses on creating neu
 \subsection{Determinants of Risk}
 \label{sub:determinants_riks}
 
-\cite{dp4807.pdf} researches the question if it is possible at all possible to investigate individual risk attitudes using a survey.
+\cite{dp4807.pdf} researches the question if it is possible at all possible to investigate individual risk attitudes using a survey. In this paper \citep{dp4807.pdf}, try to asses the viability of using a hypothetical lottery, and risk self-assessment when measuring risk-attitudes of individuals. Their research is based on~\cite{individualRiskAttitudes}, and therefore their questions are modelled in a similar fashion. The researchers findings indicate that hypothetical lotteries and self-scaling questions are generally good indicators to measures someones risk attitude. The author though argue, that the heterogeneity of the results point out that it might be better to use more context specific questions based on the problem at hand. The results of this study influenced the decisions taken in Section~\ref{sec:methodology} while creating the survey for this paper.
 
-A wide array of research exists in the social, financial and economical studies on the determinants of risk in individuals and in groupings. For the purpose of this paper, a number of those which address financial risk directly were chosen.~\cite{individualRiskAttitudes} states that it aimed to examine risk attitudes based on a large representative survey provided by SOEP\@. The study was then complemented by a smaller field study which examined the general willingness of an individual to take risk, based on the findings of the previous examination. The authors then expand their findings in order to correlate the general risk with more specific risk types such as smoking, financial risk and etc. In the findings the group concludes that indeed gender, age, height and the parental background correlate with risk attitude an individual displays. In addition to these determinants, choices such as investment in stocks and doing sports contributes to the willingness of an individual to take risk.~\cite{individualRiskAttitudes} used a financial lottery in order to verify these results in the field experiment, this approach will be used by this paper in Section~\ref{sec:methodology}.
+A wide array of research exists in the social, financial and economical studies on the determinants of risk in individuals and in groupings. For the purpose of this paper, a number of those which address financial risk directly were chosen.~\cite{individualRiskAttitudes} states that it aimed to examine risk attitudes based on a large representative survey provided by SOEP\@. The study was then complemented by a smaller field study which examined the general willingness of an individual to take risk, based on the findings of the previous examination. The authors then expand their findings in order to correlate the general risk with more specific risk types such as smoking, financial risk and etc. In the findings the group concludes that indeed gender, age, height and the parental background correlate with risk attitude an individual displays. In addition to these determinants, choices such as investment in stocks and doing sports have been found to contribute to the willingness of an individual to take risk.~\cite{individualRiskAttitudes} used a financial lottery in order to verify these results in the field experiment, this approach will be used by this paper in Section~\ref{sec:methodology}.
+
 
 \subsection{Financial risk with NNs}
 \label{sub:financial_risk_nn}

@@ -48,6 +48,8 @@ def run_task(params):
                         'test_perf (%)',
                         'test_recall',
                         'run_time (min)']
+            writer = csv.writer(logfile, delimiter=params['delimiter'])
+            writer.writerow(data)
         for dataset in params['datasets']:
             riskNN.create_NN(params['learning_rate'],
                              params['L1_reg'],
@@ -60,8 +62,6 @@ def run_task(params):
                              params['hidden_layers_sizes'],
                              params['logfile'],
                              params['activation'])
-            writer = csv.writer(logfile, delimiter=params['delimiter'])
-            writer.writerow(data)
 
     elif(params['setting'] == 'predict'):
         for dataset in params['datasets']:
@@ -72,6 +72,11 @@ def run_task(params):
                            params['hidden_layers_sizes'],
                            params['n_outs'],
                            params['activation'])
+
+
+'''
+    Parser
+'''
 
 
 def get_parser():
@@ -102,6 +107,10 @@ def get_parser():
     parser.add_argument("-o", "--output",
                         dest="j")
     return parser
+
+'''
+    Program invocations
+'''
 
 if __name__ == '__main__':
     args = get_parser().parse_args()

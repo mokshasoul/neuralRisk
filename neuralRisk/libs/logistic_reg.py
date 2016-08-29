@@ -60,6 +60,8 @@ class LogisticRegression(object):
         # hyperplane-k
         self.p_y_given_x = T.nnet.softmax(T.dot(input, self.W) + self.b)
 
+        # TODO: Change the functions for Y here, make them more fitting for
+        # banking data!
         # symbolic description of how to compute prediction as class whose
         # probability is maximal
         self.y_pred = T.argmax(self.p_y_given_x, axis=1)

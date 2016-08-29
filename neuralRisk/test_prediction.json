@@ -5,7 +5,7 @@
             "L1_reg" : 0.00,
             "L2_reg" : 0.0001,
 			"training_epochs" : 1000,
-            "best_model":"best_model_bank_2016-08-26.pkl",
+            "best_model":"best_model_bank_2016-08-29.pkl",
 			"datasets" : ["testData/bank/bank.csv"],
 			"n_ins" : 51,
 			"n_outs" : 2,

@@ -31,10 +31,8 @@ https://github.com/twuilliam/ift6266h14_wt/blob/master/post_01/mlp.py
 """
 
 import os
-import sys
-import utils
 import numpy as np
-import matplotlib as mpl
+import matplotlib.pyplot as plt
 from datetime import date
 
 
@@ -51,35 +49,31 @@ class Plot(object):
         self.data = {key: [] for key in what_to_plot}
         self.length = {key: [] for key in what_to_plot}
         # self.fig = mpl .pyplot.figure()
-        # mpl.pyplot.ion()
-        # mpl.pyplot.show()
+        # plt.ion()
+        # plt.show()
 
     def append(self, key, value, epoch):
         if key not in self.data:
-            raise StandardError("Plot: Key %s not found." % key)
+            raise ValueError("Plot: Key %s not found." % key)
         self.data[key].append(value)
         self.length[key].append(epoch)
 
-
     def update_plot(self):
-        dim_x, dim_y = utils.find_two_closest_factors(len(self.data))
-        legend = [] 
-
         for k, v in self.data.iteritems():
             if len(v) != 0:
-                y=np.array(v)
-                mpl.pyplot.plot(self.length[k], y, label=k)
+                y = np.array(v)
+                plt.plot(self.length[k], y, label=k)
 
-        mpl.pyplot.legend()
-        mpl.pyplot.ylabel('MSE')
-        mpl.pyplot.xlabel('epoch')
-
+        plt.legend()
+        plt.ylabel('MSE')
+        plt.xlabel('epoch')
 
     def save_plot(self, epoch=0, task_n=1, file_format='PDF'):
         output_folder = os.path.split(__file__)[0]
         output_file = \
-        os.path.join(output_folder,'Plot_{:d}_{:%Y_%m_%d_%H_%M}.{}'.format(task_n,date.today(),
-                                                                          file_format))
+            os.path.join(output_folder,
+                         'Plot_{:d}_{:%Y_%m_%d_%H_%M}.{}'.format(
+                          task_n, date.today(), file_format))
         self.update_plot()
         print("saving_plot")
-        mpl.pyplot.savefig(output_file, format=file_format)
+        plt.savefig(output_file, format=file_format)

@@ -1,3 +1,6 @@
+neuralRisk project: A Logistic regression Multilayered Perceptron used in
+a University project in order to predict risk affinity of theoretical bank users
+based on risk determinants extracted from a survey
 MIT License
 
 Copyright (c) 2016 Charis - Nicolas Georgiou

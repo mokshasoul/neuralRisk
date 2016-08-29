@@ -130,8 +130,7 @@ def load_csv(path, delimiter):
 
     print('File given in ' + path + ' successfully loaded')
     csv_data = pd.read_csv(f_csv_in, delimiter=delimiter)
-    csv_data = pd.get_dummies(csv_data)
-    csv_data.to_csv()
+    # csv_data = pd.get_dummies(csv_data)
     # plot_input(csv_data, path)
     data = csv_data.values
     vector = np.vectorize(int)

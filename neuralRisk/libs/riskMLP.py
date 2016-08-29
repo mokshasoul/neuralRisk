@@ -3,6 +3,8 @@ import os
 from logistic_reg import LogisticRegression
 from mlp import HiddenLayer
 import cPickle as pickle
+
+
 class riskMLP(object):
     """ Multilayer NN for classifying risk
 
@@ -67,31 +69,30 @@ class riskMLP(object):
         # keep track of model input
         self.input = input
 
-
     def save_model(self, filename='params.pkl', save_dir='output_folder'):
         """
             This functions where found at:
-            https://github.com/twuilliam/ift6266h14_wt/blob/master/post_01/mlp.py 
+            https://github.com/twuilliam/ift6266h14_wt/blob/master/post_01/mlp.py
 
-            Used to troubleshoot our homegrown implementation of saving and loading
-            models
+            Used to troubleshoot our homegrown implementation of saving and
+            loading models
                     """
-        #print 'Model parameters are being is saved %s' % filename
+        # print 'Model parameters are being is saved %s' % filename
         if not(os.path.isdir(save_dir)):
             os.makedirs(save_dir)
 
-        save_file = open(os.path.join(save_dir,filename), 'wb')
-        pickle.dump(self.params, save_file, protocol=-1) # -1 = ALIAS HIGHEST_PROT
+        save_file = open(os.path.join(save_dir, filename), 'wb')
+        # -1 = ALIAS HIGHEST_PROT
+        pickle.dump(self.params, save_file, protocol=-1)
         save_file.close()
 
-
     def load_model(self, filename='params.pkl',
-                load_dir='output_folder'):
-        #print 'Model parameters are being loaded from %s' % filename
+                   load_dir='output_folder'):
+        # print 'Model parameters are being loaded from %s' % filename
 
-        dira =  os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+        dira = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
         load_dir = dira + "/" + load_dir
-        load_file = open(os.path.join(load_dir,filename),'rb')
+        load_file = open(os.path.join(load_dir, filename), 'rb')
         params = pickle.load(load_file)
         load_file.close()
 
@@ -99,7 +100,6 @@ class riskMLP(object):
         self.hiddenLayer.b.set_value(params[1].get_value(), borrow=True)
         self.logRegressionLayer.W.set_value(params[2].get_value(), borrow=True)
         self.logRegressionLayer.b.set_value(params[3].get_value(), borrow=True)
-    
 
     def gausian(x):
         return T.exp(T.sqr(x))
