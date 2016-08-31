@@ -37,7 +37,7 @@ from datetime import date
 
 
 class Plot(object):
-    def __init__(self, *what_to_plot):
+    def __init__(self, title, *what_to_plot):
         """
             init function for our Plot class
 
@@ -48,9 +48,7 @@ class Plot(object):
             assert isinstance(x, str)
         self.data = {key: [] for key in what_to_plot}
         self.length = {key: [] for key in what_to_plot}
-        # self.fig = mpl .pyplot.figure()
-        # plt.ion()
-        # plt.show()
+        self.title = title
 
     def append(self, key, value, epoch):
         if key not in self.data:
@@ -67,13 +65,14 @@ class Plot(object):
         plt.legend()
         plt.ylabel('MSE')
         plt.xlabel('epoch')
+        plt.title = self.title
 
-    def save_plot(self, epoch=0, task_n=1, file_format='PDF'):
+    def save_plot(self, task_n=1, file_format='PDF'):
         output_folder = os.path.split(__file__)[0]
         output_file = \
             os.path.join(output_folder,
-                         'Plot_{:d}_{:%Y_%m_%d_%H_%M}.{}'.format(
-                          task_n, date.today(), file_format))
+                         'Plot_{:d}_{}_{:%Y_%m_%d_%H_%M}.{}'.format(
+                          task_n, self.title, date.today(), file_format))
         self.update_plot()
         print("saving_plot")
         plt.savefig(output_file, format=file_format)

@@ -58,8 +58,9 @@ class LogisticRegression(object):
         # x is a matrix where row-j  represents input training sample-j
         # b is a vector where element-k represent the free parameter of
         # hyperplane-k
-        self.p_y_given_x = T.nnet.softmax(T.dot(input, self.W) + self.b)
+        # self.p_y_given_x = T.nnet.softmax(T.dot(input, self.W) + self.b)
 
+        self.p_y_given_x = T.nnet.softmax(T.dot(input, self.W) + self.b)
         # TODO: Change the functions for Y here, make them more fitting for
         # banking data!
         # symbolic description of how to compute prediction as class whose
@@ -125,5 +126,7 @@ class LogisticRegression(object):
             # the T.neq operator returns a vector of 0s and 1s, where 1
             # represents a mistake in prediction
             return T.mean(T.neq(self.y_pred, y))
+        elif y.dtype.startswith('float'):
+            return T.sum(T.sqr(self.y_pred-y))
         else:
             raise NotImplementedError()

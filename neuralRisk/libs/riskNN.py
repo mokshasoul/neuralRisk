@@ -43,8 +43,8 @@ __docformat__ = 'restructedtext en'
 
 def create_NN(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
               dataset='mnist.pkl.gz', n_in=28*28, n_out=10, batch_size=20,
-              n_hidden=500, logfile='test.csv', activation='tanh',
-              load_params=False):
+              n_hidden=500, logfile='test.csv', activation='tanh', task_num=1,
+              load_params=False, plotError=False):
     """
     Demonstrate stochastic gradient descent optimization for a multilayer
     perceptron
@@ -74,10 +74,10 @@ def create_NN(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
     TODO: Add a load_params value in order to load a model
     """
     datasets = load_data(dataset)
-    data_name = data_file_name(dataset)
     train_set_x, train_set_y = datasets[0]
     valid_set_x, valid_set_y = datasets[1]
     test_set_x, test_set_y = datasets[2]
+    dataset_name = data_file_name(dataset)
 
     # computation of minibatches for training, valid and testing
     n_train_batches = train_set_x.get_value(borrow=True).shape[0] // batch_size
@@ -85,6 +85,7 @@ def create_NN(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
     n_test_batches = test_set_x.get_value(borrow=True).shape[0] // batch_size
 
     print('...building the model')
+    # Debugging for theano
     # theano.config.compute_test_value = 'warn'
 
     # allocate symbolic vars for the data
@@ -104,7 +105,7 @@ def create_NN(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
             activation_function=activation
             )
 
-    # the cost we minimize during trainingis the negative log likelihood of
+    # the cost we minimize during training is the negative log likelihood of
     # the model plus the regularization terms (L1 and L2); cost is expressed
     # symbolically (THEANO)
     cost = (
@@ -166,19 +167,20 @@ def create_NN(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
     ###############
     print('... training')
 
-    plot = Plot('Validation-Loss', 'Test-Loss')
+    plot = Plot(dataset_name, 'Validation-Loss', 'Test-Loss')
 
     # early-stopping parameters ( in order to stop on mistakes)
     patience = 10000        # look as this many samples regardless
     patience_increase = 5   # wait this much longer when a new best is found
-
-    improvement_threshold = 0.995   # a relative improvement of this much
-                                    # is considered significant
+    # a relative improvement of this much
+    # is considered significant
+    improvement_threshold = 0.995
+    # go through this many
+    # minibatches before checking the network
+    # on the validation set; in this case we
+    # check every epoch
     validation_frequency = min(n_train_batches, patience // 2)
-                                # go through this many
-                                # minibatches before checking the network
-                                # on the validation set; in this case we
-                                # check every epoch
+
     best_validation_loss = np.inf
     best_iter = 0
     test_score = 0.
@@ -197,7 +199,7 @@ def create_NN(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
             # iteration number
             iter = (epoch - 1) * n_train_batches + minibatch_index
 
-            if (iter + 1) % validation_frequency == 0:
+            if ((iter + 1) % validation_frequency == 0) or plotError:
                 # compute zero-one loss on validation set
                 validation_losses = [validate_model(i) for i
                                      in range(n_valid_batches)]
@@ -237,8 +239,10 @@ def create_NN(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
                            test_score * 100.))
                     plot.append('Test-Loss', test_score, epoch)
 
-                    classifier.save_model(filename='best_model_'+data_name+'_'
-                                          + str(date.today())+'.pkl')
+                    model_name = ('best_model_'+dataset_name
+                                               + '_'
+                                  + str(date.today())+'.pkl')
+                    classifier.save_model(filename=model_name)
                 else:
                     plot.append('Test-Loss', np.NaN, 0)
 
@@ -254,7 +258,8 @@ def create_NN(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
            os.path.split(__file__)[1] +
            ' ran for %.2fm' % ((end_time - start_time) / 60.)),
           file=sys.stderr)
-    plot.save_plot()
+    print('model saved under name: {}'.format(model_name))
+    plot.save_plot(task_n=task_num)
 
 
 def predict(dataset='mnist.pkl.gz',

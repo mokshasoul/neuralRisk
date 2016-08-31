@@ -84,7 +84,7 @@ def load_data(dataset, delimiter=',', borrow=True):
     else:
         if (".csv" in data_file):
                 print("CREATING CSV FILE SETS")
-                dataset_name = data_file[:-4]
+                dataset_name = data_file.split('.')[0]
                 train_set = os.path.join(data_dir, dataset_name + "_train.csv")
                 valid_set = os.path.join(data_dir, dataset_name + "_valid.csv")
                 test_set = os.path.join(data_dir,  dataset_name + "_test.csv")
@@ -191,7 +191,7 @@ def is_valid_file(parser, arg):
 
 def data_file_name(dataset):
     data_file = os.path.split(dataset)[1]
-    return data_file[:-4]
+    return data_file.split('.')[0]
 
 
 def find_two_closest_factors(n):

@@ -46,10 +46,10 @@ Neural networks and deep learning are in essence machine learning algorithms, wh
 \cite{mitchel97} defines the learning part of a learning algorithm as `A computer program is said to learn from experience \textit{E} with respect to some class of tasks \textit{T} and performance measure \textit{P}, if its performance at task in \textit{T}, as measured by \textit{P}, improves with experience \textit{E}.`. The task \textit{T}, is more accurately a task, that is difficult to solve with a fixed program, traditional program, and it is not to be confused with the process of learning, since the task itself is the problem that needs to be solved.
 
 \subsubsection{Network Types}
-The learning process is based on how a machine learning process will process an \textbf{example}, that is composed of a collection of \textbf{features}, where a vector \[x in R^n \] and each \[x_i\] of the vector is just another feature of the example. An example of a feature are the values of the individual pixels in an image. Some of the more common tasks that can be solved by machine learning are as follows:
+The learning process is based on how a machine learning process will process an \textbf{example}, that is composed of a collection of \textbf{features}, where a vector $x in R^n$ and each $x_i$ of the vector is just another feature of the example. An example of a feature are the values of the individual pixels in an image. Some of the more common tasks that can be solved by machine learning are as follows:
 \begin{itemize}
-    \item Classification: The task here is to specify in which category \textit{k} a certain input belongs to. These type of algorithms are used for example for classifying images to objects. A function \[f(x)\] is computed based on the data learned.
-    \item Regression: The task here is to predict a numerical value given some input. The function \[f(x)\] that is calculated is similar to the one of the classification algorithm with the exception that the output format differs. A simple example of this is the prediction of the claim amount an insured person will make, or the future price of securities.
+    \item Classification: The task here is to specify in which category \textit{k} a certain input belongs to. These type of algorithms are used for example for classifying images to objects. A function $f(x)$is computed based on the data learned.
+    \item Regression: The task here is to predict a numerical value given some input. The function $f(x)$ that is calculated is similar to the one of the classification algorithm with the exception that the output format differs. A simple example of this is the prediction of the claim amount an insured person will make, or the future price of securities.
     \item Transcription: The task in this instance, is to observe an unstructured representation of some kind of data, and try to transcribe it in textual form. A simple example of this is the transcription of a handwritten image to text.
     \item Machine translation: In this task the computer tries to translate one language to another, the most common application is the translation of two natural languages e.g. English to French. Here deep learning is quite important.
     \item Structured output: Any tasks, where the output is a vector, that contains important relationships between the different elements. An example is the transcription above, or parsing of natural languages in trees that describe grammatical structures.
@@ -61,38 +61,51 @@ The learning process is based on how a machine learning process will process an 
 \end{itemize}
 % Literature chosen based on what
 
-\subsubsection{Performance Measure \textit{P}}
+\subsubsection{The Task \textit{T}}
+\label{subsub:task}
 
-The performance measure evaluates, quantitavely how good the network performs for a specific task. As en example in the case of classification the measure would be the accuracy of the network in predicting correct results. Usually the performance is measured based on the error rate, and to evaluate the performance after the reaching a satisfying error rate, the performance is measured based on a test-set of data that the network never saw before.
+
+\subsubsection{Performance Measure \textit{P}}
+\label{subsub:performance_measure}
+
+The performance measure evaluates, quantitatively how good the network performs for a specific task. As en example in the case of classification the measure would be the accuracy of the network in predicting correct results. Usually the performance is measured based on the error rate, and to evaluate the performance after the reaching a satisfying error rate, the performance is measured based on a test-set of data that the network never saw before.
 
 \subsubsection{The Experience, \textit{E}}
+\label{subsub:the_experience}
 
 Machine learning algorithms, as illustrated above can be split in either \textbf{supervised} or \textbf{unsupervised} learning algorithms. The experience discussed here is the is the \textbf{dataset} which is chosen as an input for the algorithm. In an \textbf{unsupervised} learning algorithm, the algorithm experiences the whole dataset and tries to extract useful properties out of it without labeling by a user, for example in a denoising network. The formula for 
 
-In a \textbf{supervised} learning algorithm, the algorithm experiences the dataset which is asossciated to a specific \textbf{label} or \textbf{target}. This is generally used as part of classification algorithms, such as when classifying plants based on the features of their iris. The formula for supervised learning is usually (book 105)
+In a \textbf{supervised} learning algorithm, the algorithm experiences the dataset which is associated to a specific \textbf{label} or \textbf{target}. This is generally used as part of classification algorithms, such as when classifying plants based on the features of their iris. The formula for supervised learning is usually (book 105)
 
 A clear distinction between the two has still to be defined formally, yet this is above the scope of this paper.
 
 \subsubsection{Overfitting, underfitting and capacity}
+\label{subsub:overfitting}
 
 One of the most important aspects in neural networks is \textbf{overfitting} and \textbf{underfitting}. These two terms generally mean that due to outliers in the data the generated model either has a large gap between the training error and the test error, in the case of overfitting, or the training set cannot attain a low error value, as is the case when underfitting. These values can be controlled through an attribute called \textbf{capacity}. Capacity generally expresses a wide variety of functions, which will not be explained here, but one example would be to standardize the input data.
 
-
-
+\subsubsection{Deep Neural Networks}
 \section{Literature Review}
 \label{sec:literature_review}
+
 This section will be reviewing available literature that focuses on creating neural networks to asses risk in different settings. Some of the literature reviewed here does not directly apply to the financial sector, yet yields useful information in what kind of methodology should be applied in order to create the implementation detailed further down in this paper.
 
 \subsection{Determinants of Risk}
 \label{sub:determinants_riks}
 
-\cite{dp4807.pdf} researches the question if it is possible at all possible to investigate individual risk attitudes using a survey. In this paper \citep{dp4807.pdf}, try to asses the viability of using a hypothetical lottery, and risk self-assessment when measuring risk-attitudes of individuals. Their research is based on~\cite{individualRiskAttitudes}, and therefore their questions are modelled in a similar fashion. The researchers findings indicate that hypothetical lotteries and self-scaling questions are generally good indicators to measures someones risk attitude. The author though argue, that the heterogeneity of the results point out that it might be better to use more context specific questions based on the problem at hand. The results of this study influenced the decisions taken in Section~\ref{sec:methodology} while creating the survey for this paper.
+\cite{dp4807.pdf} researches the question if it is possible at all possible to investigate individual risk attitudes using a survey. In the paper~\cite{dp4807.pdf}, try to asses the viability of using a hypothetical lottery, and risk self-assessment when measuring risk-attitudes of individuals. Their research is based on~\cite{individualRiskAttitudes}, and therefore their questions are modelled in a similar fashion. The researchers findings indicate that hypothetical lotteries and self-scaling questions are generally good indicators to measures someones risk attitude. The author though argue, that the heterogeneity of the results point out that it might be better to use more context specific questions based on the problem at hand. The results of this study influenced the decisions taken in Section~\ref{sec:methodology} while creating the survey for this paper.
 
 A wide array of research exists in the social, financial and economical studies on the determinants of risk in individuals and in groupings. For the purpose of this paper, a number of those which address financial risk directly were chosen.~\cite{individualRiskAttitudes} states that it aimed to examine risk attitudes based on a large representative survey provided by SOEP\@. The study was then complemented by a smaller field study which examined the general willingness of an individual to take risk, based on the findings of the previous examination. The authors then expand their findings in order to correlate the general risk with more specific risk types such as smoking, financial risk and etc. In the findings the group concludes that indeed gender, age, height and the parental background correlate with risk attitude an individual displays. In addition to these determinants, choices such as investment in stocks and doing sports have been found to contribute to the willingness of an individual to take risk.~\cite{individualRiskAttitudes} used a financial lottery in order to verify these results in the field experiment, this approach will be used by this paper in Section~\ref{sec:methodology}.
 
 
 \subsection{Financial risk with NNs}
 \label{sub:financial_risk_nn}
+
+Finance is always a subject in statistics, as such a number of literature exists which employees neural networks in financial context.~\cite{instanbulStock} investigates the application of neural networks in the Instanbul stock market.
+
+
+B:q
+
 
 
 \subsection{Various risk with NNs}
@@ -102,35 +115,55 @@ A wide array of research exists in the social, financial and economical studies 
 \section{Methodology}
 \label{sec:methodology}
 
-As detailed in the relevant literature, the methodology which is appropriate neural network design for the problem detailed in the introduction, is that of a multi-layered perceptron. As detailed in Section~\ref{sub:neural_networks} these types of networks are appropriate for classification tasks. The design of the network to be implemented can be visualised in Figure~\ref{fig:net_design}. 
+As detailed in the relevant literature, the methodology which is appropriate neural network design for the problem detailed in the introduction, is that of a multi-layered perceptron, using logistical regression at its output layer. As detailed in Section~\ref{sub:neural_networks} these types of networks are appropriate for classification tasks. The design of the network to be implemented can be visualised in Figure~\ref{fig:net_design}. 
 
 To determine the relevant setup a questionnaire was developed based on the literature reviewed in~\ref{sub:determinants_risk}. The questionnaire is included as part of this paper in the appendix. The first assumption that is going to be tested is if the network can asses through the first three questions posed, the outcome of the fourth question. If the fourth question can be guessed correctly then we could equally assume that with the inclusion of the fourth question as an input the outcome will be even more correct. 
 
 The purpose of the fourth question is to classify the persons answering the questionnaire into three distinct classes. One who is risk-averse, one who is of medium risk-aversity/propensity and a class who is more risk-prone than the other ones. The purpose of this, as detailed in Section\ref{sec:Introduction} is to be able to determine the appropriate investment packages that should be recommended to a client of a bank.
 
-In order to be able to handle a small dataset, cross-validation is being used. At the network proceeds to plot the MSE of the validation, training and test loss with respect to the epochs run, which were detailed in Section~\ref{sub:neural_networks}. The prediction function will the be tested again on a small subset of the test set in order to also visualize its accuracy.
-%Here explain the code
+In order to be able to handle a small dataset, cross-validation is being used. At the network proceeds to plot the MSE of the validation and test loss with respect to the epochs run, which were detailed in Section~\ref{sub:neural_networks}. The prediction function will then be tested again on a small subset of the test set in order to be able to also visualize its accuracy.
+
 \section{Implementation Details}
 \label{sec:implementation_details}
 
-The chosen language for the implementation is python. This is due to the wide use in neural networks, and in general data-science which is enjoyed by python. As we needed a network with adequate performance the theano tensor framework was chosen in order to implement the different neural network functionalities. Theano also did provide most of the activation functions by itself, the only exception of this was the Gaussian activation function which was implemented by hand.
+\subsection{Network Design}
+\label{sub:network_design}
 
-%TODO: epochs, trainingsets, explanation what a neural net is
+The chosen language for the implementation is python. This is due to the wide use in neural networks, and in general data-science which is enjoyed by python. As we needed a network with adequate performance the Theano framework was chosen in order to implement the different neural network functionalities. Theano also did provide most of the activation functions by itself, the only exception of this was the Gaussian activation function which was implemented by hand. Since Theano is quite a complex framework the implementation chosen for the task at hand was a simple feed-forward network with backpropagation as depicted in Figure~\ref{fig:sampleNetwork}
 
-Since there can be different types of data, the algorithm will pre-process the input sets in order to standardize the data. Data standardization is needed in order to obtain sane values for binary and categorical datasets. For this purpose the scikitlearn framework is employed. The data will then be normalized. Normalization is needed in order to restrict the data between the values of minimum and maximum values that it can acquire and is employed in statistics. While standardization is always a normalization, normalization itself is not a standardization. Normalization is used here to eliminate influences of large values. 
+Theano computes its functions and generates internal graphs, the graph for the neural network created for this paper is depicted in Figure~\ref{fig:theanoGraph}. 
+\subsection{Input Pre-processing}
+\label{sub:splitfunc}
+
+Since there can be different types of data, an additional splitting algorithm is employed which will pre-process the dataset in question, in order to first standardize the data, then apply normalization where appropriate and later on split the dataset into the appropriate training, validation and testing sets. Data standardization is needed in order to obtain sane values for binary and categorical datasets. To accomplish this task the \textbf{pandas} framework is used in order to do the standardization. 
+
+Following this, pandas is again employed in order to normalize all the columns of the dataset. Normalization is needed in order to restrict the data between the values of minimum and maximum values that it can acquire and is employed in statistics in order to reduce outliers. In our case the normalization is crucial in order to also control overfitting and underfitting of the weights and the bias. While standardization is always a normalization, normalization itself is not a standardization. 
+
+Normalization is used here to eliminate influences of very large values and very small values. At the end of the splitting algorithm, the program will output the shape of the data in order for the user to know how many features the dataset will contain. Depending if the label data is categorical or numerical, the algorithm will also take care to take this under consideration when outputting the amount of features the dataset will have.
+
+\subsection{Program Usage}
+\label{sub:program}
 
 The main scale of the program is located in the file \textit{run.py}. The file can be called using \textit{python run.py} with following arguments:
 \begin{itemize}
-    \item -d or --demo: runs the demo function on the mnist dataset
+    \item -d or --demo: runs the demo function on the MNIST dataset
     \item -pd or --prediction-demo: runs the MNIST prediction demo 
-    \item -j or --json: expects a json as input with the task to solve
+    \item -j or --json: expects a JSON as input with the task to solve
+    \item -s or --split: expects a CSV as input and then splits the file into appropriate training, validation and test set
     \item -v or --version: displays the program version
 \end{itemize}
+
 % \url{http://yann.lecun.com/exdb/mnist/}
-\subsection{The Demo}
+
+\subsubsection{The Demo}
+\label{subsub:demo}
 The Demo consist of predicting the MNIST Dataset provided from~\cite{MNISTSite}. It is used as part of the Tutorial in~\cite{deepLearning.org}, and thus is used to demonstrate and test the custom build network. The Demo loads the MNIST Dataset from a python pickle file and then runs the network. The prediction part of the demo is run automatically when the prefix \emph{-d} is used. Alternatively if someone wants to just test how the predictor works, he can just activate the \emph{-pd} option.
 
-\subsection{JSON-Tasks}
+The algorithm should run in a similar fashion as explained by~\cite{theanoTutorial}. The program is modelled after the algorithms introduced there albeit with a lot of modified parts in order to account for our datasets.
+
+\subsubsection{JSON-Tasks}
+\label{subsub:json}
+
 The configuration of the tasks that should run in the neural network is given using a json file which is structured in the following way:
 \begin{verbatim}
     {
@@ -145,7 +178,9 @@ The configuration of the tasks that should run in the neural network is given us
         ]
     }
 \end{verbatim}
+
 There are 2 key settings in the JSON file, which determine the overall contents of a single task entry. The variable in question is also called setting, and can be set to either train or predict. A Task then has following structure depending on the setting:
+
 \begin{itemize}
     \item If the setting is set to \textbf{train} then following settings apply:
     \begin{itemize}
@@ -159,7 +194,7 @@ There are 2 key settings in the JSON file, which determine the overall contents 
         \item \emph{batch\_size}: How many batches should be used in each epoch
         \item \emph{hidden\_layers\_sizes}: Specifies the size of the hidden layers. If given as list will produce multiple hidden layers
         \item \emph{logfile}: A file which would log the output of the training
-        \item \emph{activation}: The activation function to be used, currently supports: tanh(x),relu(x),gausian(x),sigmoid(x),hard\_sigmoid(x)
+        \item \emph{activation}: The activation function to be used, currently supports: $tanh(x)$,$relu(x)$,$gausian(x)$,$sigmoid(x)$,$hard\_sigmoid(x)$
         \item \emph{delimiter}: Specifies the delimiter to be used in the logfile and the delimiter which is present in the dataset input file
     \end{itemize}
     \item If the setting is set to \textbf{predict}:
@@ -177,9 +212,14 @@ There are 2 key settings in the JSON file, which determine the overall contents 
 
 In addition the program can also be run using the GPU, though currently due to the lack of a testable computer this function is still not implemented, as Theano only fully supports NVIDIA-CUDA\@.
 
-\subsection{The Dataset}
-The dataset can be provided as a single CSV\@. Then the user has to split the dataset into a training set, a validation set and a testing set. To simplify this process for the user, the neural network implements the -s argument which calls the CSV splitter. The splitter takes the file and splits it into an 80/20 training/test file, it then proceeds to apply a similar 80/20 split to the training file in order to provide a fair validation set. In the JSON file which serves as an input to the neural network, the user has to mainly write the name of the original CSV file, the program takes care of it itself.
-\subsection{Activation Functions}
+\subsubsection{The Dataset}
+\label{subsub:dataset}
+
+The dataset should be provided as a single CSV\@. Then the user has to split the dataset into a training set, a validation set and a testing set. To simplify this process for the user, the neural network implements the -s argument which calls the CSV splitter, discussed as part of Section~\ref{sub:splitfunc}. The splitter takes the file and splits it into an 80/20 training/test file, it then proceeds to apply a similar 80/20 split to the training file in order to provide a fair validation set. In the JSON file which serves as an input to the neural network, the user has to mainly write the name of the original CSV file, the program takes care of it itself.
+
+\subsubsection{Activation Functions}
+\label{subsub:activation_functions}
+
 % How the program could be expanded, or what kind of research needs to be done to 
 % add even more hidden layers that would create more precision 
 \section{Future Work}

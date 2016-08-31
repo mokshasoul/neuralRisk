@@ -8,6 +8,7 @@ split.py:
     https://stackoverflow.com/questions/31112689/shuffle-and-split-a-data-file-into-training-and-test-set
     Usage is split.py <input file> the output will be 3 files
     input_file_name_train,_valid,_test.{csv || xlsx}
+    main usage is included in run.py
 Copyright © 2016 Charis - Nicolas Georgiou
 
 Permission is hereby granted, free of charge, to any person obtaining
@@ -31,8 +32,13 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 import sys
 import os
+import utils
 import pandas as pd
 import numpy as np
+
+
+def advanced_normalization(df, y_label_name):
+    pass
 
 
 def main(input_file, delimiter=";", split_percent=80,
@@ -47,25 +53,33 @@ def main(input_file, delimiter=";", split_percent=80,
         print("Hey Jim something happened while reading the file")
         sys.exit(2)
 
+    # Here the algorithms performs the standarization
+    # and shuffling of the data
     transform_set = pd.get_dummies(transform_set)
     train_shape = transform_set.shape
-
     new_index = np.random.permutation(transform_set.index)
-
     train_set = transform_set.reindex(new_index)
+    # Here we perform normalization on all columns that do not contain
+    # categorical data
+    # print(train_set.ix[:, -2:]) <-- Sample to extract Columns
 
+    train_set_norm = ((train_set -
+                       train_set.mean())/(train_set.max()-train_set.min()))
+    # Here we do the splitting
     indice_percent = int((train_shape[0]/100.0)*split_percent)
     indice_percent_valid = int((indice_percent/100.0) * split_percent)
     filepath, filename = os.path.split(input_file)
-    filename = filename[:-4]
+    filename = utils.data_file_name(input_file)
+    # generate the output sets
     output_train = filename + "_train.csv"
     output_valid = filename + "_valid.csv"
     output_test = filename + "_test.csv"
 
-    train_set[:indice_percent][:indice_percent_valid].to_csv(
+    train_set_norm[:indice_percent][:indice_percent_valid].to_csv(
         os.path.join(filepath, output_train), header=True, index=False)
-    train_set[:indice_percent:][indice_percent_valid:].to_csv(
+    train_set_norm[:indice_percent:][indice_percent_valid:].to_csv(
         os.path.join(filepath, output_valid), header=True, index=False)
-    train_set[indice_percent:].to_csv(
+    train_set_norm[indice_percent:].to_csv(
         os.path.join(filepath, output_test), header=True, index=False)
-    print(output_train + " " + output_valid + " " + output_test)
+    print("Files outputed as:" + output_train + " " + output_valid + " "
+          + output_test + "in folder" + filepath)

@@ -21,7 +21,7 @@ def run(tasks):
     task_num = 1
     for task_params in tasks:
         print('####### PROCESSING TASK NUMBER {} ######'.format(task_num))
-        run_task(task_params)
+        run_task(task_params, task_num)
         task_num += 1
 
 '''
@@ -29,7 +29,7 @@ def run(tasks):
 '''
 
 
-def run_task(params):
+def run_task(params, task_num):
     if(params['setting'] == 'train'):
         if not os.path.isfile(params['logfile']) or \
            not os.stat(params['logfile'])[6] == 0:
@@ -61,7 +61,8 @@ def run_task(params):
                              params['batch_size'],
                              params['hidden_layers_sizes'],
                              params['logfile'],
-                             params['activation'])
+                             params['activation'],
+                             task_num)
 
     elif(params['setting'] == 'predict'):
         for dataset in params['datasets']:
