@@ -37,12 +37,8 @@ import pandas as pd
 import numpy as np
 
 
-def advanced_normalization(df, y_label_name):
-    pass
-
-
 def main(input_file, delimiter=";", split_percent=80,
-         cross_validation=False):
+         normalization=False):
     input_file = os.path.abspath(input_file)
     try:
         if ".csv" in input_file:
@@ -55,6 +51,9 @@ def main(input_file, delimiter=";", split_percent=80,
 
     # Here the algorithms performs the standarization
     # and shuffling of the data
+    # y_label_set = transform_set.ix[:, -1:] <-- accessing pandas
+    # Dataframes through ix
+    y_label_name = transform_set.axes[1][-1:].values[0]
     transform_set = pd.get_dummies(transform_set)
     train_shape = transform_set.shape
     new_index = np.random.permutation(transform_set.index)
@@ -62,9 +61,27 @@ def main(input_file, delimiter=";", split_percent=80,
     # Here we perform normalization on all columns that do not contain
     # categorical data
     # print(train_set.ix[:, -2:]) <-- Sample to extract Columns
+    """
+        This hack removes the Label column since this program does
+        primarily classification and avoids normalizing it instead
+        only normalizing the X values.
+    """
+    if normalization:
+        i = 0
+        for j in train_set.axes[1].values:
+            if y_label_name in j:
+                i = i - 1
 
-    train_set_norm = ((train_set -
-                       train_set.mean())/(train_set.max()-train_set.min()))
+        train_set_x = train_set.ix[:, :i]
+        train_set_y = train_set.ix[:, i:]
+
+        train_set_norm = ((train_set_x -
+                           train_set_x.mean()) /
+                          (train_set_x.max()-train_set_x.min()))
+        # Merge the set again
+        train_set_norm = train_set_norm.join(train_set_y)
+        train_set = train_set_norm
+
     # Here we do the splitting
     indice_percent = int((train_shape[0]/100.0)*split_percent)
     indice_percent_valid = int((indice_percent/100.0) * split_percent)
@@ -75,11 +92,11 @@ def main(input_file, delimiter=";", split_percent=80,
     output_valid = filename + "_valid.csv"
     output_test = filename + "_test.csv"
 
-    train_set_norm[:indice_percent][:indice_percent_valid].to_csv(
+    train_set[:indice_percent][:indice_percent_valid].to_csv(
         os.path.join(filepath, output_train), header=True, index=False)
-    train_set_norm[:indice_percent:][indice_percent_valid:].to_csv(
+    train_set[:indice_percent:][indice_percent_valid:].to_csv(
         os.path.join(filepath, output_valid), header=True, index=False)
-    train_set_norm[indice_percent:].to_csv(
+    train_set[indice_percent:].to_csv(
         os.path.join(filepath, output_test), header=True, index=False)
     print("Files outputed as:" + output_train + " " + output_valid + " "
           + output_test + "in folder" + filepath)

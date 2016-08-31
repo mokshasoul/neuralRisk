@@ -27,8 +27,6 @@ class LogisticRegression(object):
                      which the datapoints lie
 
         :type n_out: int
-        :param n_out: number of output units, the dimension of the space in
-                      which the labels lie
 
         """
         # initialize with 0 the weights W as a matrix of shape (n_in, n_out)
@@ -78,6 +76,8 @@ class LogisticRegression(object):
         Return the mean of the negative log-likelihood of the prediction
         of this model under a given target distribution.
 
+        This is cross entropy
+
         .. math::
 
             \frac{1}{|\mathcal{D}|} \mathcal{L} (\theta=\{W,b\}, \mathcal{D}) =
@@ -109,6 +109,9 @@ class LogisticRegression(object):
         Return a float representing the number of errors in the minibatch
         over the total number of examples of the minibatch ; zero one
         loss over the size of the minibatch
+
+        In addition if input is float, return the Mean-Square-Error in order
+        to create a better backpropagation for floating values....
 
         :type y: theano.tensor.TensorType
         :param y: corresponds to a vector that gives for each example the

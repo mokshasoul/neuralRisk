@@ -35,10 +35,10 @@
 			"datasets" : ["testData/bank_2/bank.csv"],
 			"n_ins" : 51,
 			"n_outs" : 2,
-			"batch_size" : 30,
-			"hidden_layers_sizes" : 50,
+			"batch_size" : 5,
+			"hidden_layers_sizes" :102 ,
 			"logfile" : "logs/bank.csv",
-            "activation" : "tanh",
+            "activation" : "relu",
             "delimiter" : ",",
             "setting" : "train"
 		},
@@ -47,11 +47,11 @@
 			"datasets" : ["testData/bank_2/bank.csv"],
 			"n_ins" : 51,
 			"n_outs" : 2,
-			"batch_size" : 30,
-			"hidden_layers_sizes" : 50,
+			"batch_size" : 5,
+			"hidden_layers_sizes" : 102,
 			"result_file" : "logs/bank.csv",
             "delimiter" : ",",
-            "activation" : "tanh",
+            "activation" : "relu",
             "setting" : "predict"
         }
 	]
