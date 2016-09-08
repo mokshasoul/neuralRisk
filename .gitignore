@@ -2,3 +2,9 @@
 neuralRisk/testData
 *\.pkl
 venv
+.idea/
+neuralRisk/libs/Plot_1_bank_2016_08_31_00_00.PDF
+neuralRisk/libs/Plot_3_bank_2016_08_31_00_00.PDF
+neuralRisk/mnist.pkl.gz
+neuralRisk/output_folder/*
+neuralRisk/plots/*

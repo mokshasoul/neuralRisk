@@ -16,7 +16,6 @@ from libs import riskNN
     run tasks given in json format
 '''
 
-
 def run(tasks):
     task_num = 1
     for task_params in tasks:

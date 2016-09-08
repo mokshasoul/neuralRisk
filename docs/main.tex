@@ -103,25 +103,32 @@ A wide array of research exists in the social, financial and economical studies 
 
 Finance is always a subject in statistics, as such a number of literature exists which employees neural networks in financial context.~\cite{instanbulStock} investigates the application of neural networks in the Instanbul stock market.
 
-
-B:q
-
+Building on that research, \cite{bitcoinNN}
 
 
+Alternatevily~\cite{bbNN}
+
+\cite{04443437.pdf} discussed risk evaluation of project financing
+
+It can be thus concluded that neural networks are actively being used in finance to account for a variety of subjects, often those subjects consider themselves with regressional tasks, yet there are also instances in which classification problems are analyzd
 \subsection{Various risk with NNs}
 \label{sub:various_risk_nn}
 
+~\cite{riskAssesmentInternalAuditing} starts of with ...
+
+
+What can be seen in this section is that neural networks are a viable tool in predicting risk, and in general risk attitudes.
 % Methodology of choosing equations, and algorithmic approaches
 \section{Methodology}
 \label{sec:methodology}
 
-As detailed in the relevant literature, the methodology which is appropriate neural network design for the problem detailed in the introduction, is that of a multi-layered perceptron, using logistical regression at its output layer. As detailed in Section~\ref{sub:neural_networks} these types of networks are appropriate for classification tasks. The design of the network to be implemented can be visualised in Figure~\ref{fig:net_design}. 
+As detailed in the relevant literature, the methodology which is appropriate neural network design for the problem detailed in the introduction, is that of a multi-layered perceptron, using logistical regression at its output layer. As detailed in Section~\ref{sub:neural_networks} these types of networks are appropriate for classification tasks, and since the task as hand is to sort people based on their risk-attitude this designates it as a classification problem, as classifying people based on their political beliefs would be. The design of the network to be implemented can be visualised in Figure~\ref{fig:net_design}. 
 
 To determine the relevant setup a questionnaire was developed based on the literature reviewed in~\ref{sub:determinants_risk}. The questionnaire is included as part of this paper in the appendix. The first assumption that is going to be tested is if the network can asses through the first three questions posed, the outcome of the fourth question. If the fourth question can be guessed correctly then we could equally assume that with the inclusion of the fourth question as an input the outcome will be even more correct. 
 
 The purpose of the fourth question is to classify the persons answering the questionnaire into three distinct classes. One who is risk-averse, one who is of medium risk-aversity/propensity and a class who is more risk-prone than the other ones. The purpose of this, as detailed in Section\ref{sec:Introduction} is to be able to determine the appropriate investment packages that should be recommended to a client of a bank.
 
-In order to be able to handle a small dataset, cross-validation is being used. At the network proceeds to plot the MSE of the validation and test loss with respect to the epochs run, which were detailed in Section~\ref{sub:neural_networks}. The prediction function will then be tested again on a small subset of the test set in order to be able to also visualize its accuracy.
+In order to be able to handle a small dataset, cross-validation is being used. At the network proceeds to plot the cross entropy validation of the validation and test loss with respect to the epochs run, which were detailed in Section~\ref{sub:neural_networks}. The prediction function will then be tested again on a small subset of the test set in order to be able to also visualize its accuracy. These graphs can be visualized in~\ref{fig:sampleGraph}
 
 \section{Implementation Details}
 \label{sec:implementation_details}
@@ -217,16 +224,23 @@ In addition the program can also be run using the GPU, though currently due to t
 
 The dataset should be provided as a single CSV\@. Then the user has to split the dataset into a training set, a validation set and a testing set. To simplify this process for the user, the neural network implements the -s argument which calls the CSV splitter, discussed as part of Section~\ref{sub:splitfunc}. The splitter takes the file and splits it into an 80/20 training/test file, it then proceeds to apply a similar 80/20 split to the training file in order to provide a fair validation set. In the JSON file which serves as an input to the neural network, the user has to mainly write the name of the original CSV file, the program takes care of it itself.
 
+\subsubsection{The Splitter}
+\label{subsub:splitter}
+
 \subsubsection{Activation Functions}
 \label{subsub:activation_functions}
+
+\section{Results}
+\label{sec:results}
 
 % How the program could be expanded, or what kind of research needs to be done to 
 % add even more hidden layers that would create more precision 
 \section{Future Work}
 \label{sec:future_work}
 
+As can be seen, although not accurate the neural networks can actually be used to predict the choices a person would make when faced with risk-based decision in a financial situation. It is also possible that with even more data, and a lot more features for the dataset, the prediction could have been more accurate than the current program output. Further work in this direction would entail the creation of a more elaborate questionnaire and a higher population sampling.
 
+Many improvements could also be added to the algorithm generating the neural network, for example an option to add a lot more hidden layers with variable node count. In addition, other output layers could also be implemented that do not directly implement logistical regression but rather other methods of inferring the results of the network. Fortunately such frameworks do exists, for example Lasagne~\cite{lasagne}. In addition, other methods for gradient descent could be considered that are more optimal than batch-gradient descent, or better weight initialization.
 
-
-
+All in all the program has served the purpose of showing the concept of neural networks when faced with people and risky decisions, and although further improvements and fine tuning could be made, this was out of the scope of this paper.
 \end{document}

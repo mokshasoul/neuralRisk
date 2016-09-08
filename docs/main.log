@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016/TeX Live for SUSE Linux) (preloaded format=pdflatex 2016.8.26)  29 AUG 2016 23:37
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016/TeX Live for SUSE Linux) (preloaded format=pdflatex 2016.8.26)  31 AUG 2016 20:16
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -74,60 +74,85 @@ LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10> not available
 (Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 51.
  [2] [3]
 
-LaTeX Warning: Citation `dp4807.pdf' on page 4 undefined on input line 87.
+LaTeX Warning: Citation `dp4807.pdf' on page 4 undefined on input line 96.
 
 
-LaTeX Warning: Citation `dp4807.pdf' on page 4 undefined on input line 87.
-
-
-LaTeX Warning: Citation `individualRiskAttitudes' on page 4 undefined on input 
-line 87.
+LaTeX Warning: Citation `dp4807.pdf' on page 4 undefined on input line 96.
 
 
 LaTeX Warning: Citation `individualRiskAttitudes' on page 4 undefined on input 
-line 89.
+line 96.
 
 
 LaTeX Warning: Citation `individualRiskAttitudes' on page 4 undefined on input 
-line 89.
+line 98.
+
+
+LaTeX Warning: Citation `individualRiskAttitudes' on page 4 undefined on input 
+line 98.
 
 [4]
 
-LaTeX Warning: Reference `fig:net_design' on page 5 undefined on input line 103
+LaTeX Warning: Citation `instanbulStock' on page 5 undefined on input line 104.
+
+
+
+LaTeX Warning: Citation `bitcoinNN' on page 5 undefined on input line 106.
+
+
+LaTeX Warning: Citation `bbNN' on page 5 undefined on input line 109.
+
+
+LaTeX Warning: Citation `04443437.pdf' on page 5 undefined on input line 111.
+
+
+LaTeX Warning: Citation `riskAssesmentInternalAuditing' on page 5 undefined on 
+input line 117.
+
+
+LaTeX Warning: Reference `fig:net_design' on page 5 undefined on input line 125
 .
 
 
 LaTeX Warning: Reference `sub:determinants_risk' on page 5 undefined on input l
-ine 105.
-
-
-LaTeX Warning: Reference `fig:sampleNetwork' on page 5 undefined on input line 
-117.
+ine 127.
 
 [5]
-Overfull \hbox (1.22284pt too wide) in paragraph at lines 124--125
+
+LaTeX Warning: Reference `fig:sampleGraph' on page 6 undefined on input line 13
+1.
+
+
+LaTeX Warning: Reference `fig:sampleNetwork' on page 6 undefined on input line 
+139.
+
+
+LaTeX Warning: Reference `fig:theanoGraph' on page 6 undefined on input line 14
+1.
+
+
+Overfull \hbox (1.22284pt too wide) in paragraph at lines 147--148
 []\OT1/cmr/m/n/10 Following this, pan-das is again em-ployed in or-der to nor-m
 al-ize all the columns
  []
 
-
-LaTeX Warning: Citation `MNISTSite' on page 6 undefined on input line 142.
-
-
-LaTeX Warning: Citation `deepLearning.org' on page 6 undefined on input line 14
-2.
-
 [6]
 
-LaTeX Warning: Citation `theanoTutorial' on page 7 undefined on input line 144.
+LaTeX Warning: Citation `MNISTSite' on page 7 undefined on input line 167.
 
 
-[7]
+LaTeX Warning: Citation `deepLearning.org' on page 7 undefined on input line 16
+7.
 
-LaTeX Warning: Reference `sub:splitfunc' on page 8 undefined on input line 200.
+
+LaTeX Warning: Citation `theanoTutorial' on page 7 undefined on input line 169.
 
 
-[8] (./main.aux)
+[7] [8]
+
+LaTeX Warning: Citation `lasagne' on page 9 undefined on input line 243.
+
+[9] (./main.aux)
 
 LaTeX Warning: There were undefined references.
 
@@ -136,13 +161,13 @@ LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
 
  ) 
 Here is how much of TeX's memory you used:
- 266 strings out of 494041
- 3113 string characters out of 6158495
- 56004 words of memory out of 5000000
- 3723 multiletter control sequences out of 15000+600000
+ 280 strings out of 494041
+ 3348 string characters out of 6158495
+ 57004 words of memory out of 5000000
+ 3737 multiletter control sequences out of 15000+600000
  6031 words of font info for 22 fonts, out of 8000000 for 9000
  475 hyphenation exceptions out of 8191
- 23i,5n,21p,1248b,229s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 23i,5n,21p,1248b,242s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/share/texmf/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/share/texmf
 /fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texmf/fonts/type1/public
 /amsfonts/cm/cmbxti10.pfb></usr/share/texmf/fonts/type1/public/amsfonts/cm/cmmi
@@ -150,10 +175,10 @@ Here is how much of TeX's memory you used:
 exmf/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texmf/fonts/type1/pub
 lic/amsfonts/cm/cmsy10.pfb></usr/share/texmf/fonts/type1/public/amsfonts/cm/cmt
 i10.pfb></usr/share/texmf/fonts/type1/public/amsfonts/cm/cmtt10.pfb>
-Output written on main.pdf (8 pages, 135205 bytes).
+Output written on main.pdf (9 pages, 138388 bytes).
 PDF statistics:
- 67 PDF objects out of 1000 (max. 8388607)
- 47 compressed objects within 1 object stream
+ 70 PDF objects out of 1000 (max. 8388607)
+ 49 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  1 words of extra memory for PDF output out of 10000 (max. 10000000)
 

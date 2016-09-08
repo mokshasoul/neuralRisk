@@ -53,7 +53,7 @@ def main(input_file, delimiter=";", split_percent=80,
     # and shuffling of the data
     # y_label_set = transform_set.ix[:, -1:] <-- accessing pandas
     # Dataframes through ix
-    y_label_name = transform_set.axes[1][-1:].values[0]
+    y_label_name = transform_set.axes[1][-1:].values[0] + '_'
     transform_set = pd.get_dummies(transform_set)
     train_shape = transform_set.shape
     new_index = np.random.permutation(transform_set.index)
