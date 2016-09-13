@@ -38,7 +38,7 @@ import numpy as np
 
 
 def main(input_file, delimiter=";", split_percent=80,
-         normalization=False):
+         normalization=True):
     input_file = os.path.abspath(input_file)
     try:
         if ".csv" in input_file:

@@ -26,6 +26,7 @@ import cPickle as pickle
 import numpy as np
 import theano
 import pandas as pd
+import config
 from datetime import date
 import theano.tensor as T
 import csv
@@ -50,6 +51,11 @@ def shared_dataset(data_xy, borrow=True):
                              borrow=borrow)
     # GPU shared data has to be float since GPU is good at floats ;)
     return shared_x, T.cast(shared_y, 'int32')
+
+
+def write_prediction(X, y):
+    cwd = os.getcwd()
+    print(cwd)
 
 
 def load_data(dataset, delimiter=',', borrow=True):
@@ -168,12 +174,12 @@ def plot_predictions(epochs, costs):
 """
 
 
-def append_prediction(preds, dataset_name):
-    with open(dataset_name+"_predictions.csv", 'ab') as csvfile:
-        fieldnames = ['Date', 'Prediction']
+def append_prediction(X, y):
+    with open(config.prediction_file, 'ab') as csvfile:
+        fieldnames = ['Prediction']
         writer = csv.DictWriter(csvfile, delimiter=';', fieldnames=fieldnames)
-        for pred in preds:
-            writer.writerow({'Date': str(date.today()), 'Prediction': pred})
+        for pred in y:
+            writer.writerow({'Prediction': pred})
     pass
 
 

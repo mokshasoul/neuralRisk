@@ -7,6 +7,7 @@
 import csv
 import os
 import json
+import config
 import sys
 from libs import utils
 from libs.split import main as split
@@ -15,6 +16,7 @@ from libs import riskNN
 '''
     run tasks given in json format
 '''
+
 
 def run(tasks):
     task_num = 1
@@ -30,6 +32,7 @@ def run(tasks):
 
 def run_task(params, task_num):
     if(params['setting'] == 'train'):
+        log_dir = os.path.join(os.getcwd(), 'logs', params['logfile'])
         if not os.path.isfile(params['logfile']) or \
            not os.stat(params['logfile'])[6] == 0:
             with open(params['logfile'], "wb") as logfile:
@@ -65,6 +68,11 @@ def run_task(params, task_num):
 
     elif(params['setting'] == 'predict'):
         for dataset in params['datasets']:
+            config.prediction_file = os.path.join(os.getcwd(), 'predictions',
+                                                  utils.data_file_name(dataset)
+                                                  )
+            if not(os.path.isfile(config.prediction_file)):
+                open(config.prediction_file, 'a').close()
             riskNN.predict(dataset,
                            params['best_model'],
                            params['batch_size'],

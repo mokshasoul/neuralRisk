@@ -12,7 +12,6 @@
 			"batch_size" : 40,
 			"hidden_layers_sizes" : 100,
 			"logfile" : "logs/bank.csv",
-            "predictionfile": "predictions/bank.csv",
             "activation" : "relu",
             "delimiter" : ",",
             "setting" : "predict"

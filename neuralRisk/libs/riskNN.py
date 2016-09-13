@@ -33,10 +33,11 @@ import theano
 from riskMLP import riskMLP
 import sys
 import os
+import config
 import timeit
 from datetime import date
 from plot import Plot
-from utils import load_data, data_file_name
+from utils import load_data, data_file_name, append_prediction
 
 __docformat__ = 'restructedtext en'
 
@@ -239,7 +240,8 @@ def create_NN(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
                            test_score * 100.))
                     plot.append('Test-Loss', test_score, epoch)
 
-                    model_name = ('best_model_'+dataset_name
+                    model_name = ('best_model_'+task_num
+                                               +dataset_name
                                                + '_'
                                   + str(date.today())+'.pkl')
                     classifier.save_model(filename=model_name)
@@ -304,6 +306,6 @@ def predict(dataset='mnist.pkl.gz',
     print("expected to get: ")
     print(test_set_y)
     predicted_values = predict_model(test_set_x)
+    append_prediction(test_set_x, predicted_values)
     print("Predicted values for the test set:")
-    print(type(predicted_values))
     print(predicted_values)

@@ -7,10 +7,12 @@
 import csv
 import os
 import json
+import config
+from datetime import date
 import sys
-from libs import utils
-from libs.split import main as split
-from libs import riskNN
+from neuralRisk.libs import utils
+from neuralRisk.libs.split import main as split
+from neuralRisk.libs import riskNN
 
 '''
     run tasks given in json format
@@ -21,7 +23,7 @@ def run(tasks):
     task_num = 1
     for task_params in tasks:
         print('####### PROCESSING TASK NUMBER {} ######'.format(task_num))
-        run_task(task_params)
+        run_task(task_params, task_num)
         task_num += 1
 
 '''
@@ -29,8 +31,9 @@ def run(tasks):
 '''
 
 
-def run_task(params):
+def run_task(params, task_num):
     if(params['setting'] == 'train'):
+        log_dir = os.path.join(os.getcwd(), 'logs', params['logfile'])
         if not os.path.isfile(params['logfile']) or \
            not os.stat(params['logfile'])[6] == 0:
             with open(params['logfile'], "wb") as logfile:
@@ -48,6 +51,8 @@ def run_task(params):
                         'test_perf (%)',
                         'test_recall',
                         'run_time (min)']
+            writer = csv.writer(logfile, delimiter=params['delimiter'])
+            writer.writerow(data)
         for dataset in params['datasets']:
             riskNN.create_NN(params['learning_rate'],
                              params['L1_reg'],
@@ -59,12 +64,16 @@ def run_task(params):
                              params['batch_size'],
                              params['hidden_layers_sizes'],
                              params['logfile'],
-                             params['activation'])
-            writer = csv.writer(logfile, delimiter=params['delimiter'])
-            writer.writerow(data)
+                             params['activation'],
+                             task_num)
 
     elif(params['setting'] == 'predict'):
         for dataset in params['datasets']:
+            config.prediction_file = os.path.join(os.getcwd(), 'predictions',
+                                                  utils.data_file_name(dataset)+'_'+str(task_num)+'_'+str(date.today())+'.csv'
+                                                  )
+            if not(os.path.isfile(config.prediction_file)):
+                open(config.prediction_file, 'a').close()
             riskNN.predict(dataset,
                            params['best_model'],
                            params['batch_size'],
@@ -72,6 +81,11 @@ def run_task(params):
                            params['hidden_layers_sizes'],
                            params['n_outs'],
                            params['activation'])
+
+
+'''
+    Parser
+'''
 
 
 def get_parser():
@@ -102,6 +116,10 @@ def get_parser():
     parser.add_argument("-o", "--output",
                         dest="j")
     return parser
+
+'''
+    Program invocations
+'''
 
 if __name__ == '__main__':
     args = get_parser().parse_args()
