@@ -76,3 +76,6 @@ class Plot(object):
         self.update_plot()
         print("saving_plot")
         plt.savefig(output_file, format=file_format)
+
+    def close(self):
+        plt.close()

@@ -12,7 +12,8 @@ from datetime import date
 import sys
 from neuralRisk.libs import utils
 from neuralRisk.libs.split import main as split
-from neuralRisk.libs import riskNN
+from neuralRisk.libs.riskNN import riskNN
+from neuralRisk.libs.riskNN import predict
 
 '''
     run tasks given in json format
@@ -33,54 +34,61 @@ def run(tasks):
 
 def run_task(params, task_num):
     if(params['setting'] == 'train'):
-        log_dir = os.path.join(os.getcwd(), 'logs', params['logfile'])
-        if not os.path.isfile(params['logfile']) or \
-           not os.stat(params['logfile'])[6] == 0:
-            with open(params['logfile'], "wb") as logfile:
-                data = ['date_time',
+        log_file = os.path.join(os.getcwd(), 'logs', params['logfile'])
+        if config.log_file is None:
+            config.log_file = log_file
+        if config.plot_dir is None:
+            config.plot_dir = os.path.join(os.getcwd(), 'plots')
+        if not os.path.isfile(config.log_file) or \
+           not os.stat(config.log_file)[6] == 0:
+            with open(config.log_file, "a") as logfile:
+                data = ['task_number',
+                        'date_run',
                         'dataset',
-                        'target_name',
-                        'finetune_lr',
-                        'pretraining_epochs',
-                        'pretrain_lr',
+                        'learning_rate',
+                        'epochs',
                         'batch_size',
                         'n_ins',
                         'n_outs',
-                        'hidden_layers_sizes',
+                        'n_hidden',
                         'valid_perf (%)',
                         'test_perf (%)',
-                        'test_recall',
+                        'model_name',
                         'run_time (min)']
-            writer = csv.writer(logfile, delimiter=params['delimiter'])
-            writer.writerow(data)
+                writer = csv.writer(logfile,
+                                    delimiter=str(params['delimiter']))
+                writer.writerow(data)
         for dataset in params['datasets']:
-            riskNN.create_NN(params['learning_rate'],
-                             params['L1_reg'],
-                             params['L2_reg'],
-                             params['training_epochs'],
-                             dataset,
-                             params['n_ins'],
-                             params['n_outs'],
-                             params['batch_size'],
-                             params['hidden_layers_sizes'],
-                             params['logfile'],
-                             params['activation'],
-                             task_num)
+            riskNN(params['learning_rate'],
+                   params['L1_reg'],
+                   params['L2_reg'],
+                   params['training_epochs'],
+                   dataset,
+                   params['n_outs'],
+                   params['batch_size'],
+                   params['hidden_layers_sizes'],
+                   params['logfile'],
+                   params['activation'],
+                   task_num)
 
     elif(params['setting'] == 'predict'):
         for dataset in params['datasets']:
             config.prediction_file = os.path.join(os.getcwd(), 'predictions',
-                                                  utils.data_file_name(dataset)+'_'+str(task_num)+'_'+str(date.today())+'.csv'
+                                                  utils.data_file_name(dataset)
+                                                  + '_' +
+                                                  str(task_num)+'_' +
+                                                  params['activation']+'_' +
+                                                  str(date.today())+'.csv'
                                                   )
+
             if not(os.path.isfile(config.prediction_file)):
                 open(config.prediction_file, 'a').close()
-            riskNN.predict(dataset,
-                           params['best_model'],
-                           params['batch_size'],
-                           params['n_ins'],
-                           params['hidden_layers_sizes'],
-                           params['n_outs'],
-                           params['activation'])
+            predict(dataset,
+                    params['best_model'],
+                    params['batch_size'],
+                    params['hidden_layers_sizes'],
+                    params['n_outs'],
+                    params['activation'])
 
 
 '''

@@ -32,14 +32,16 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 import sys
 import os
+from sklearn.feature_extraction import DictVectorizer
 import utils
 import pandas as pd
 import numpy as np
 
 
 def main(input_file, delimiter=";", split_percent=80,
-         normalization=True):
+         normalization=True, ordinal=False):
     input_file = os.path.abspath(input_file)
+    print(input_file)
     try:
         if ".csv" in input_file:
             transform_set = pd.read_csv(input_file, sep=delimiter)
@@ -53,6 +55,7 @@ def main(input_file, delimiter=";", split_percent=80,
     # and shuffling of the data
     # y_label_set = transform_set.ix[:, -1:] <-- accessing pandas
     # Dataframes through ix
+    proper_shit(transform_set)
     y_label_name = transform_set.axes[1][-1:].values[0] + '_'
     transform_set = pd.get_dummies(transform_set)
     train_shape = transform_set.shape
@@ -74,6 +77,9 @@ def main(input_file, delimiter=";", split_percent=80,
 
         train_set_x = train_set.ix[:, :i]
         train_set_y = train_set.ix[:, i:]
+    # if ordinal:
+    #     for j in xrange(i):
+    #         for k in xrange(train_set_y.shape[0]):
 
         train_set_norm = ((train_set_x -
                            train_set_x.mean()) /
@@ -100,3 +106,43 @@ def main(input_file, delimiter=";", split_percent=80,
         os.path.join(filepath, output_test), header=True, index=False)
     print("Files outputed as:" + output_train + " " + output_valid + " "
           + output_test + "in folder" + filepath)
+
+
+def charis_normalizer(transform_set):
+    """
+        Creates integer list, which is a column wise identifier of columsn
+        which only contain integers and thus are excempt from standarization
+        per se
+    """
+    y_label_name = transform_set.axes[1][-1:].values
+    integer_list = []
+    x_first_row = transform_set.iloc[0].values.tolist()
+    for i,val in enumerate(x_first_row):
+        print('We have : ' + str(val))
+        if str(val).isdigit():
+            integer_list.append(i)
+        else:
+            pass
+    create_normalized_df(transform_set, integer_list)
+
+
+def create_normalized_df(transform_set, integer_list):
+     dv = DictVectorizer(sparse=False) 
+     df = pd.to_numeric(transform_set)
+     dv.fit_transform(df.to_dict(orient='records'))
+
+     print(df)
+
+
+def proper_shit(transform_set):
+    transform_set_x = pd.get_dummies(transform_set.ix[:,:-1])
+    transform_set_y = transform_set.ix[:,-1:]
+    category_list = []
+    for i in transform_set_y.iterrows():
+        category = str(i[1].values[0])
+        if not(category in category_list):
+            category_list.append(category)
+
+def categorical_to_numerical_y(transform_set_y, category_list):
+    pass        
+
