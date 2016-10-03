@@ -14,7 +14,7 @@
     },
     {
         "best_model":"best_model_2_bank_relu_2016-10-03.pkl",
-        "datasets" : ["neuralRisk/testData/bank_2/bank.csv"],
+        "datasets" : ["neuralRisk/testData/bank_2/bank_test.csv"],
         "n_ins" : 51,
         "n_outs" : 2,
         "batch_size" : 10,
@@ -26,7 +26,7 @@
     },
     {
         "best_model":"best_model_3_bank_tanh_2016-09-27.pkl",
-        "datasets" : ["neuralRisk/testData/bank/bank.csv"],
+        "datasets" : ["neuralRisk/testData/bank/bank_test.csv"],
         "n_ins" : 51,
         "n_outs" : 2,
         "batch_size" : 10,
@@ -38,7 +38,7 @@
     },
     {
         "best_model":"best_model_4_bank_tanh_2016-10-03.pkl",
-        "datasets" : ["neuralRisk/testData/bank_2/bank.csv"],
+        "datasets" : ["neuralRisk/testData/bank_2/bank_test.csv"],
         "n_ins" : 51,
         "n_outs" : 2,
         "batch_size" : 10,
@@ -50,9 +50,9 @@
     },
     {
         "best_model":"best_model_5_bank_sigmoid_2016-10-03.pkl",
-        "datasets" : ["neuralRisk/testData/bank/bank.csv"],
+        "datasets" : ["neuralRisk/testData/bank/bank_test.csv"],
         "n_ins" : 51,
-        "n_outs" : 4,
+        "n_outs" : 2,
         "batch_size" : 10,
         "hidden_layers_sizes" : 51,
         "result_file" : "logs/bank.csv",
@@ -62,7 +62,7 @@
     },
     {
         "best_model":"best_model_6_bank_sigmoid_2016-10-03.pkl",
-        "datasets" : ["neuralRisk/testData/bank_2/bank.csv"],
+        "datasets" : ["neuralRisk/testData/bank_2/bank_test.csv"],
         "n_outs" : 2,
         "batch_size" : 10,
         "hidden_layers_sizes" : 51,

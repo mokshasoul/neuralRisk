@@ -226,5 +226,15 @@ def write_results(task_num, dataset_name,
         writer.writerow('\n')
 
 
+def load_svm_dataset(dataset):
+    data_dir, data_file = os.path.split(dataset)
+    dataset_name = data_file.split('.')[0]
+    train_set = os.path.join(data_dir, dataset_name + "_train.csv")
+    test_set = os.path.join(data_dir,  dataset_name + "_test.csv")
+    train_X, train_y = load_csv(train_set)
+    test_X, test_y = load_csv(test_set)
+    rval = [(train_X, train_y, test_X, test_y)]
+    return rval
+
 # def print_theano_graph(function, out_file):
 #     pdp(function, outfile=out_file)
