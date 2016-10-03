@@ -1,0 +1,16 @@
+{
+"tasks": [
+    {
+        "best_model":"best_model_1_bank_relu_2016-10-03.pkl",
+        "datasets" : ["neuralRisk/testData/bank/bank_test.csv"],
+        "n_ins" : 51,
+        "n_outs" : 2,
+        "batch_size" : 10,
+        "hidden_layers_sizes" : 51,
+        "result_file" : "logs/bank.csv",
+        "delimiter" : ",",
+        "activation" : "relu",
+        "setting" : "predict"
+    }
+	]
+}
