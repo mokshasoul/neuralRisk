@@ -85,3 +85,7 @@ task_number,date_run,dataset,learning_rate,epochs,batch_size,n_ins,n_outs,n_hidd
 6;2016-10-03;bank;0.0001;1000;10;52;2;51;0.03888888888888889;0.033333333333333333;best_model_6_bank_sigmoid_2016-10-03.pkl; ran for 0.82m
 "
 "
+task_number,date_run,dataset,learning_rate,epochs,batch_size,n_ins,n_outs,n_hidden,valid_perf (%),test_perf (%),model_name,run_time (min)
+1;2016-10-04;bank;0.0001;1000;10;51;2;51;0.11805555555555555;0.11111111111111113;best_model_1_bank_relu_2016-10-04.pkl; ran for 0.76m
+"
+"

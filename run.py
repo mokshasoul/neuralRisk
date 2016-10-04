@@ -10,6 +10,7 @@ import json
 import config
 from datetime import date
 import sys
+from neuralRisk.libs import svm
 from neuralRisk.libs import utils
 from neuralRisk.libs.split import main as split
 from neuralRisk.libs.riskNN import riskNN
@@ -123,6 +124,11 @@ def get_parser():
                         help="input CSV file to split")
     parser.add_argument("-o", "--output",
                         dest="j")
+    parser.add_argument("-z", "--svm",
+                        dest="svm_dataset",
+                        type=lambda x: utils.is_valid_file(parser, x),
+                        default=None,
+                        help="The dataset to be processed by the SVM")
     return parser
 
 '''
@@ -149,3 +155,5 @@ if __name__ == '__main__':
         except:
             print('Oops something died Jim')
             sys.exit()
+    if args.svm_dataset is not None:
+            svm.svm_exp(args.svm_dataset)
