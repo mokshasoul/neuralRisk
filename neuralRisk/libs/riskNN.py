@@ -39,6 +39,7 @@ from datetime import date
 from matplotlib import pyplot as plt
 from ohnn import keroRisk
 import utils
+import config
 
 
 __docformat__ = 'restructedtext en'
@@ -114,6 +115,7 @@ def create_NN(learning_rate, L1_reg, L2_reg, n_epochs,
     """
     datasets = utils.load_data(dataset)
     dataset_name = utils.data_file_name(dataset)
+    print(dataset_name)
 
     train_set_x, train_set_y = datasets[0]
     valid_set_x, valid_set_y = datasets[1]
@@ -252,7 +254,6 @@ def create_NN(learning_rate, L1_reg, L2_reg, n_epochs,
                     this_validation_loss * 100.
                     )
                 )
-        # plot.append('Validation-Loss', this_validation_loss, epoch)
         # if we got the best validation score until now
         if this_validation_loss < best_validation_loss:
             best_validation_loss = this_validation_loss
@@ -300,8 +301,16 @@ def create_NN(learning_rate, L1_reg, L2_reg, n_epochs,
     plt.xlabel('Epoch')
     plt.ylabel('MSE')
     plt.legend(['valid', 'train'])
-    plt.title('Error ' + activation)
-    plt.show()
+    plt.title('Error_' + activation + '_' + dataset_name)
+    plt_name = ('Plot_'+str(task_num)
+                       + '_'
+                       + dataset_name
+                       + '_'
+                       + activation
+                       + '_'
+                       + str(date.today())+'.pdf')
+    plt_save = os.path.join(config.plot_dir, plt_name)
+    plt.savefig(plt_save)
 
 
 def predict(dataset='mnist.pkl.gz',
@@ -325,9 +334,11 @@ def predict(dataset='mnist.pkl.gz',
     else:
         datasets = utils.load_data(dataset)
         test_set_x, test_set_y = datasets[2]
-    n_in = test_set_x.eval().shape[1]
+
+    dataset_name = utils.data_file_name(dataset)
     test_set_x = test_set_x.get_value()
     test_set_y = test_set_y.eval()
+    n_in = test_set_x.shape[1]
 
     rng = np.random.RandomState(1234)
     x = T.matrix('x')
@@ -350,7 +361,11 @@ def predict(dataset='mnist.pkl.gz',
         outputs=classifier.logRegressionLayer.y_pred)
     print("expected to get: ")
     print(test_set_y)
+    print(test_set_x.shape)
     predicted_values = predict_model(test_set_x)
     utils.append_prediction(test_set_x, predicted_values)
     print("Predicted values for the test set:")
     print(predicted_values)
+    if(utils.print_model(predict_model, dataset_name + "_" +
+                         activation_function)):
+        print('Theano Graph Saved')

@@ -29,6 +29,7 @@ import theano
 import pandas as pd
 import config
 import theano.tensor as T
+from theano.printing import pydotprint as th_print
 import csv
 # from theano import pydotprint as pdp
 import sys
@@ -238,3 +239,11 @@ def load_svm_dataset(dataset):
 
 # def print_theano_graph(function, out_file):
 #     pdp(function, outfile=out_file)
+
+
+def print_model(model, name):
+    if not(os.path.exists(config.theano_graphs)):
+        os.makedirs(config.theano_graphs)
+    path = os.path.join(config.theano_graphs, name + '.png')
+    th_print(model, path)
+    return 1

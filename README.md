@@ -10,3 +10,5 @@ pip install -r requirements.txt
 python run.py -d 
 
 To run the demo
+
+Everything else is written in the LateX files
