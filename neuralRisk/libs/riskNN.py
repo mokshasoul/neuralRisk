@@ -33,19 +33,57 @@ import theano
 from riskMLP import riskMLP
 import sys
 import os
-import config
 import timeit
 from datetime import date
-from plot import Plot
-from utils import load_data, data_file_name, append_prediction
+# from plot import Plot
+from matplotlib import pyplot as plt
+from ohnn import keroRisk
+import utils
+
 
 __docformat__ = 'restructedtext en'
 
 
-def create_NN(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
-              dataset='mnist.pkl.gz', n_in=28*28, n_out=10, batch_size=20,
+class riskNN:
+    def __init__(self, learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001,
+                 n_epochs=1000,
+                 dataset='mnist.pkl.gz', n_out=10, batch_size=20,
+                 n_hidden=500, logfile='test.csv', activation='tanh',
+                 task_num=1,
+                 load_params=False):
+
+        datasets = utils.load_data(dataset)
+        dataset_name = utils.data_file_name(dataset)
+
+        train_set_x, train_set_y = datasets[0]
+        try:
+            if(train_set_y.eval().shape[1] > 1):
+                print('Using Keras Classifier')
+                keroRisk(learning_rate, L1_reg, L2_reg, n_epochs,
+                         datasets, n_out, batch_size,
+                         n_hidden, logfile, activation,
+                         task_num,
+                         dataset_name
+                         )
+            else:
+                print('Using Theano Logistic Regression Classifier')
+                create_NN(learning_rate, L1_reg, L2_reg, n_epochs,
+                          dataset, n_out, batch_size,
+                          n_hidden, logfile, activation, task_num,
+                          load_params)
+        except IndexError:
+            print('Using Theano Logistic Regression Classifier, \
+                   since program encountered an index exception')
+            create_NN(learning_rate, L1_reg, L2_reg, n_epochs,
+                      dataset, n_out, batch_size,
+                      n_hidden, logfile, activation, task_num,
+                      load_params)
+
+
+def create_NN(learning_rate, L1_reg, L2_reg, n_epochs,
+              dataset, n_out=10, batch_size=20,
               n_hidden=500, logfile='test.csv', activation='tanh', task_num=1,
-              load_params=False, plotError=False):
+              load_params=False):
     """
     Demonstrate stochastic gradient descent optimization for a multilayer
     perceptron
@@ -74,11 +112,12 @@ def create_NN(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
 
     TODO: Add a load_params value in order to load a model
     """
-    datasets = load_data(dataset)
+    datasets = utils.load_data(dataset)
+    dataset_name = utils.data_file_name(dataset)
+
     train_set_x, train_set_y = datasets[0]
     valid_set_x, valid_set_y = datasets[1]
     test_set_x, test_set_y = datasets[2]
-    dataset_name = data_file_name(dataset)
 
     # computation of minibatches for training, valid and testing
     n_train_batches = train_set_x.get_value(borrow=True).shape[0] // batch_size
@@ -88,12 +127,13 @@ def create_NN(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
     print('...building the model')
     # Debugging for theano
     # theano.config.compute_test_value = 'warn'
-
+    # theano.config.optimizer='fast_compile'
     # allocate symbolic vars for the data
     index = T.lscalar()
     x = T.matrix('x')
-    y = T.ivector('y')
 
+    y = T.ivector('y')
+    n_in = train_set_x.eval().shape[1]
     rng = np.random.RandomState(1234)
 
     # construct MLP class
@@ -109,8 +149,9 @@ def create_NN(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
     # the cost we minimize during training is the negative log likelihood of
     # the model plus the regularization terms (L1 and L2); cost is expressed
     # symbolically (THEANO)
+    negative = classifier.negative_log_likelihood(y)
     cost = (
-            classifier.negative_log_likelihood(y) +
+            negative +
             L1_reg * classifier.L1 +
             L2_reg * classifier.L2_sqr
             )
@@ -168,19 +209,20 @@ def create_NN(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
     ###############
     print('... training')
 
-    plot = Plot(dataset_name, 'Validation-Loss', 'Test-Loss')
-
+    # plot = Plot(dataset_name+"_vali_loss", 'Validation-Loss', 'Test-Loss')
+    # cost_plot = Plot(dataset_name+"avg_cost", 'AVG-Batch-Cost')
+    # TODO: reimplement patience
     # early-stopping parameters ( in order to stop on mistakes)
-    patience = 10000        # look as this many samples regardless
-    patience_increase = 5   # wait this much longer when a new best is found
+    # patience = 10000        # look as this many samples regardless
+    # patience_increase = 5   # wait this much longer when a new best is found
     # a relative improvement of this much
     # is considered significant
-    improvement_threshold = 0.995
+    # improvement_threshold = 0.995
     # go through this many
     # minibatches before checking the network
     # on the validation set; in this case we
     # check every epoch
-    validation_frequency = min(n_train_batches, patience // 2)
+    # validation_frequency = min(n_train_batches, patience // 2)
 
     best_validation_loss = np.inf
     best_iter = 0
@@ -190,67 +232,50 @@ def create_NN(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
     epoch = 0
     done_looping = False
     avg_cost = []
+    avg_val = []
 
     while (epoch < n_epochs) and (not done_looping):
         epoch = epoch + 1
-        for minibatch_index in range(n_train_batches):
+        minibatch_avg_cost = [train_model(i) for i in range(n_train_batches)]
+        avg_cost.append(np.mean(minibatch_avg_cost))
+        # cost_plot.append('AVG-Batch-Cost', minibatch_avg_cost, epoch)
+        # iteration number
+        validation_losses = [validate_model(i) for i
+                             in range(n_valid_batches)]
+        this_validation_loss = np.mean(validation_losses)
+        avg_val.append(this_validation_loss)
+        print(
+                'epoch %i, training error %f %%, validation error %f %%' %
+                (
+                    epoch,
+                    np.mean(minibatch_avg_cost) * 100,
+                    this_validation_loss * 100.
+                    )
+                )
+        # plot.append('Validation-Loss', this_validation_loss, epoch)
+        # if we got the best validation score until now
+        if this_validation_loss < best_validation_loss:
+            best_validation_loss = this_validation_loss
 
-            minibatch_avg_cost = train_model(minibatch_index)
-            avg_cost.append(minibatch_avg_cost)
-            # iteration number
-            iter = (epoch - 1) * n_train_batches + minibatch_index
+            # test it on the test set
+            test_losses = [test_model(i) for i
+                           in range(n_test_batches)]
+            test_score = np.mean(test_losses)
 
-            if ((iter + 1) % validation_frequency == 0) or plotError:
-                # compute zero-one loss on validation set
-                validation_losses = [validate_model(i) for i
-                                     in range(n_valid_batches)]
-                this_validation_loss = np.mean(validation_losses)
+            print(('epoch %i, test error of '
+                   'best model %f %%') %
+                  (epoch,
+                   test_score * 100.))
+            # plot.append('Test-Loss', test_score, epoch)
 
-                print(
-                        'epoch %i, minibatch %i/%i, validation error %f %%' %
-                        (
-                            epoch,
-                            minibatch_index + 1,
-                            n_train_batches,
-                            this_validation_loss * 100.
-                            )
-                        )
-                plot.append('Validation-Loss', this_validation_loss, epoch)
-
-                # if we got the best validation score until now
-                if this_validation_loss < best_validation_loss:
-                    # improve patience if loss improvement is good enough
-                    if (
-                            this_validation_loss < best_validation_loss *
-                            improvement_threshold
-                            ):
-                        patience = max(patience, iter * patience_increase)
-
-                    best_validation_loss = this_validation_loss
-                    best_iter = iter
-
-                    # test it on the test set
-                    test_losses = [test_model(i) for i
-                                   in range(n_test_batches)]
-                    test_score = np.mean(test_losses)
-
-                    print(('epoch %i, minibatch %i/%i, test error of '
-                           'best model %f %%') %
-                          (epoch, minibatch_index + 1, n_train_batches,
-                           test_score * 100.))
-                    plot.append('Test-Loss', test_score, epoch)
-
-                    model_name = ('best_model_'+task_num
-                                               +dataset_name
-                                               + '_'
-                                  + str(date.today())+'.pkl')
-                    classifier.save_model(filename=model_name)
-                else:
-                    plot.append('Test-Loss', np.NaN, 0)
-
-            if patience <= iter:
-                done_looping = True
-                break
+            model_name = ('best_model_'+str(task_num)
+                                       + '_'
+                                       + dataset_name
+                                       + '_'
+                                       + activation
+                                       + '_'
+                          + str(date.today())+'.pkl')
+            classifier.save_model(filename=model_name)
 
     end_time = timeit.default_timer()
     print(('Optimization complete. Best validation score of %f %% '
@@ -261,12 +286,27 @@ def create_NN(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
            ' ran for %.2fm' % ((end_time - start_time) / 60.)),
           file=sys.stderr)
     print('model saved under name: {}'.format(model_name))
-    plot.save_plot(task_n=task_num)
+    utils.write_results(task_num, dataset_name,
+                        learning_rate, n_epochs, batch_size,
+                        n_in, n_out, n_hidden,
+                        logfile, best_validation_loss, test_score,
+                        model_name, ' ran for %.2fm' % ((end_time - start_time)
+                                                        / 60.))
+    # plot.save_plot(task_n=task_num)
+    # cost_plot.save_plot(task_n=task_num)
+    plt.figure()
+    plt.plot(range(epoch), avg_val)
+    plt.plot(range(epoch), avg_cost)
+    plt.xlabel('Epoch')
+    plt.ylabel('MSE')
+    plt.legend(['valid', 'train'])
+    plt.title('Error ' + activation)
+    plt.show()
 
 
 def predict(dataset='mnist.pkl.gz',
             best_model='best_model_mnist.pk_2016-08-23.pkl', batch_size=20,
-            n_in=28*28, n_hidden=50, n_out=10, activation_function='tanh'):
+            n_hidden=50, n_out=10, activation_function='tanh'):
     """
     An example of how to load a trained model and use it
     to predict labels. Modified in order to be able to pickle
@@ -276,17 +316,22 @@ def predict(dataset='mnist.pkl.gz',
     classifier itself
     TODO: Make save and load be more dynamical e.g. take into account multiple
     hidden layers
+    :type n_hidden: hidden units
     """
     # We can test it on some examples from test test
-    datasets = load_data(dataset)
-    test_set_x, test_set_y = datasets[2]
+    if (dataset is not 'mnist.pkl.gz'):
+        datasets = utils.load_data_prediction(dataset)
+        test_set_x, test_set_y = datasets[0]
+    else:
+        datasets = utils.load_data(dataset)
+        test_set_x, test_set_y = datasets[2]
+    n_in = test_set_x.eval().shape[1]
     test_set_x = test_set_x.get_value()
     test_set_y = test_set_y.eval()
 
     rng = np.random.RandomState(1234)
     x = T.matrix('x')
     # load the saved model
-    # classifier = pickle.load(open('best_model.pkl'))
     # modified according to stackoverflow post, since
     # theano instancemethods are not pickable
     classifier = riskMLP(
@@ -306,6 +351,6 @@ def predict(dataset='mnist.pkl.gz',
     print("expected to get: ")
     print(test_set_y)
     predicted_values = predict_model(test_set_x)
-    append_prediction(test_set_x, predicted_values)
+    utils.append_prediction(test_set_x, predicted_values)
     print("Predicted values for the test set:")
     print(predicted_values)

@@ -1,7 +1,7 @@
 import theano.tensor as T
 import os
 from logistic_reg import LogisticRegression
-from mlp import HiddenLayer
+from hiddenLayer import HiddenLayer
 import cPickle as pickle
 
 
@@ -11,18 +11,19 @@ class riskMLP(object):
     A multilayer perceptron is a feedforward artificial neural network model
     that has one layer or more of hidden units and nonlinear activations.
     Intermediate layers usually have as activation function tanh or the
-    sigmoid function (defined here by a ``HiddenLayer`` class)  while the
-    top layer is a softmax layer (defined here by a ``LogisticRegression``
-    class).
+    sigmoid function (defined here by a ``HiddenLayer`` class)
+    while the top layer is a softmax layer (defined here by
+    a ``LogisticRegression``    class).
     """
     def __init__(self, rng, input, n_in, n_hidden, n_out,
                  activation_function):
+        print(activation_function)
         if activation_function == "tanh":
             activation = T.tanh
         elif activation_function == "relu":
             activation = T.nnet.relu
         elif activation_function == "gausian":
-            activation = self.gausian
+            raise NotImplementedError()
         elif activation_function == "sigmoid":
             activation = T.nnet.nnet.sigmoid
 
@@ -90,16 +91,14 @@ class riskMLP(object):
                    load_dir='output_folder'):
         # print 'Model parameters are being loaded from %s' % filename
 
-        dira = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+        dira = \
+            os.path.abspath(os.path.dirname(os.path.dirname(
+                                        os.path.dirname(__file__))))
         load_dir = dira + "/" + load_dir
         load_file = open(os.path.join(load_dir, filename), 'rb')
         params = pickle.load(load_file)
         load_file.close()
-
         self.hiddenLayer.W.set_value(params[0].get_value(), borrow=True)
         self.hiddenLayer.b.set_value(params[1].get_value(), borrow=True)
         self.logRegressionLayer.W.set_value(params[2].get_value(), borrow=True)
         self.logRegressionLayer.b.set_value(params[3].get_value(), borrow=True)
-
-    def gausian(x):
-        return T.exp(T.sqr(x))

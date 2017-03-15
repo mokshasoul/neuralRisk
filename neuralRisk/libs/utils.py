@@ -24,15 +24,14 @@ import os
 import gzip
 import cPickle as pickle
 import numpy as np
+from datetime import date
 import theano
 import pandas as pd
 import config
-from datetime import date
 import theano.tensor as T
 import csv
+# from theano import pydotprint as pdp
 import sys
-
-# %matlpotlib inline
 
 __author__ = 'c.n.georgiou'
 
@@ -53,11 +52,6 @@ def shared_dataset(data_xy, borrow=True):
     return shared_x, T.cast(shared_y, 'int32')
 
 
-def write_prediction(X, y):
-    cwd = os.getcwd()
-    print(cwd)
-
-
 def load_data(dataset, delimiter=',', borrow=True):
     dataset = os.path.abspath(dataset)
     data_dir, data_file = os.path.split(dataset)
@@ -71,7 +65,7 @@ def load_data(dataset, delimiter=',', borrow=True):
                 )
         if os.path.isfile(new_path) or data_file == 'mnist.pkl.gz':
             dataset = new_path
-    print('loading data into model')
+    print('Loading data into model')
     if(data_file == 'mnist.pkl.gz'):
         print("USING MNIST PICKLE")
         with gzip.open(dataset, 'rb') as f:
@@ -89,7 +83,7 @@ def load_data(dataset, delimiter=',', borrow=True):
                 (test_set_x, test_set_y)]
     else:
         if (".csv" in data_file):
-                print("CREATING CSV FILE SETS")
+                print("CREATING CSV FILE NAME SETS")
                 dataset_name = data_file.split('.')[0]
                 train_set = os.path.join(data_dir, dataset_name + "_train.csv")
                 valid_set = os.path.join(data_dir, dataset_name + "_valid.csv")
@@ -97,7 +91,7 @@ def load_data(dataset, delimiter=',', borrow=True):
                 if(file_exists(train_set) and file_exists(train_set) and
                    file_exists(test_set)):
                     rval = load_data_csv(train_set, valid_set, test_set,
-                                         delimiter=delimiter)
+                                         delimiter)
                 else:
                     print('It appears you have a valid dataset but forgot to \
                           split it or one of them is missing, \
@@ -112,7 +106,8 @@ def load_data(dataset, delimiter=',', borrow=True):
     return rval
 
 
-def load_data_csv(train_set, valid_set, test_set, delimiter=','):
+def load_data_csv(train_set, valid_set, test_set, delimiter):
+
     train_xy = load_csv(train_set, delimiter)
     valid_xy = load_csv(valid_set, delimiter)
     test_xy = load_csv(test_set, delimiter)
@@ -127,7 +122,15 @@ def load_data_csv(train_set, valid_set, test_set, delimiter=','):
     return rval
 
 
-def load_csv(path, delimiter):
+def load_data_prediction(dataset, delimiter=',', borrow=True):
+    print('Loading prediction dataset into shared memory')
+    prediction_xy = load_csv(dataset, delimiter, isprediction=True)
+    prediction_set_x, prediction_set_y = shared_dataset(prediction_xy)
+    rval = [(prediction_set_x, prediction_set_y)]
+    return rval
+
+
+def load_csv(path, delimiter, isprediction=False):
     try:
         f_csv_in = open(path)
     except:
@@ -136,51 +139,40 @@ def load_csv(path, delimiter):
 
     print('File given in ' + path + ' successfully loaded')
     csv_data = pd.read_csv(f_csv_in, delimiter=delimiter)
+    y_label = csv_data.axes[1][-1:].values[0]
+    j = 0
+    for i in csv_data.axes[1]:
+        if y_label in i:
+            j = j-1
+
+    if isprediction:
+        write_headers(csv_data.axes[1])
     # csv_data = pd.get_dummies(csv_data)
     # plot_input(csv_data, path)
     data = csv_data.values
-    vector = np.vectorize(int)
-    data = (data[:, 0:-2], vector(np.transpose(data[:, -1:]).flatten()))
+    if(j == -1):
+        data = (data[:, 0:-1], data[:, -1:].flatten())
+    else:
+        data = (data[:, 0:j], data[:, j:])
     return data
 
 
-"""
-def plot_input(csv_data, path):
-    data_dir, data_file = os.path.split(path)
-    output_file=data_file[:-4] + "_" + str(date.today())
-    print("Plotting Input Data: " + output_file)
-    format='pdf'
-    csv_data.plot(kind='line',subplots=True)
-    plt.savefig(output_file, format=format)
-
-def plot_errors(errors, epochs, dataset_name):
-    plt.xlabel("Epoch")
-    plt.ylabel("Error-rate")
-    plt.plot(epochs, errors, color='red')
-    plt.savefig(dataset_name + "error_plot.png")
-    plt.show()
-    plt.close()
-
-
-def plot_predictions(epochs, costs):
-    plt.title("Epochs to cost")
-    plt.xlabel("Epoch")
-    plt.ylabel("Cost function output")
-    plt.plot(epochs, costs, color="blue")
-    plt.savefig("dataset_name" + "cost-function.png")
-    plt.show()
-    plt.close()
-
-"""
+def write_headers(headers):
+    with open(config.prediction_file, 'ab') as csvfile:
+        print('Writing headers to prediction file')
+        writer = csv.writer(csvfile, delimiter=';')
+        writer.writerow('\n')
+        writer.writerow(headers)
 
 
 def append_prediction(X, y):
     with open(config.prediction_file, 'ab') as csvfile:
-        fieldnames = ['Prediction']
-        writer = csv.DictWriter(csvfile, delimiter=';', fieldnames=fieldnames)
+        print('Writing prediction data to prediction file')
+        writer = csv.writer(csvfile, delimiter=';')
+        i = 0
         for pred in y:
-            writer.writerow({'Prediction': pred})
-    pass
+            writer.writerow([X[i, :].tolist(), pred])
+            i = i + 1
 
 
 def file_exists(data_file):
@@ -211,3 +203,38 @@ def find_two_closest_factors(n):
             deltas.append(delta)
             factors[delta] = (i, n/i)
     return factors[min(deltas)]
+
+
+def write_results(task_num, dataset_name,
+                  learning_rate, epochs, batch_size,
+                  n_in, n_out, n_hidden,
+                  logfile, best_validation_loss, test_score,
+                  model_name, runtime):
+    with open(config.log_file, 'ab') as csvfile:
+        print('Writing trainings results to logfile')
+        writer = csv.writer(csvfile, delimiter=';')
+        writer.writerow([task_num, date.today(), dataset_name,
+                         learning_rate,
+                         epochs,
+                         batch_size,
+                         n_in,
+                         n_out,
+                         n_hidden,
+                         best_validation_loss,
+                         test_score, model_name,
+                         runtime])
+        writer.writerow('\n')
+
+
+def load_svm_dataset(dataset):
+    data_dir, data_file = os.path.split(dataset)
+    dataset_name = data_file.split('.')[0]
+    train_set = os.path.join(data_dir, dataset_name + "_train.csv")
+    test_set = os.path.join(data_dir,  dataset_name + "_test.csv")
+    train_X, train_y = load_csv(train_set, ',')
+    test_X, test_y = load_csv(test_set, ',')
+    rval = [train_X, train_y, test_X, test_y]
+    return rval
+
+# def print_theano_graph(function, out_file):
+#     pdp(function, outfile=out_file)

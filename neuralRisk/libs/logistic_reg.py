@@ -1,6 +1,7 @@
 from __future__ import print_function
 import numpy as np
 import theano.tensor as T
+from theano import pp
 import theano
 
 
@@ -59,12 +60,13 @@ class LogisticRegression(object):
         # self.p_y_given_x = T.nnet.softmax(T.dot(input, self.W) + self.b)
 
         self.p_y_given_x = T.nnet.softmax(T.dot(input, self.W) + self.b)
+        pp(self.p_y_given_x)
         # TODO: Change the functions for Y here, make them more fitting for
         # banking data!
         # symbolic description of how to compute prediction as class whose
         # probability is maximal
         self.y_pred = T.argmax(self.p_y_given_x, axis=1)
-
+        # self.y_pred = self.p_y_given_x
         # parameters of the model
         self.params = [self.W, self.b]
 
@@ -102,7 +104,18 @@ class LogisticRegression(object):
         # LP[n-1,y[n-1]]] and T.mean(LP[T.arange(y.shape[0]),y]) is
         # the mean (across minibatch examples) of the elements in v,
         # i.e., the mean log-likelihood across the minibatch.
-        return -T.mean(T.log(self.p_y_given_x)[T.arange(y.shape[0]), y])
+        # if y.shape[1] > 1:
+        #     result = []
+        #     for i in xrange(y.shape[1]):
+        #         result.append(-T.mean(T.log(self.p_y_given_x)[T.arange(y.shape[0]), y])
+#)
+        # else:
+        # if T.gt(y.shape[1],1):
+        #     result =  T.mean(T.nnet.binary_crossentropy(self.p_y_given_x,
+        #                                                 y))
+        # else:
+        result =  -T.mean(T.log(self.p_y_given_x)[T.arange(y.shape[0]), y])
+        return result
 
     def errors(self, y):
         """
@@ -130,6 +143,13 @@ class LogisticRegression(object):
             # represents a mistake in prediction
             return T.mean(T.neq(self.y_pred, y))
         elif y.dtype.startswith('float'):
-            return T.sum(T.sqr(self.y_pred-y))
+            return self.mse(y)
         else:
             raise NotImplementedError()
+
+    def mse(self, y):
+        return T.mean(T.sum(T.sqr(self.y_pred-y)))
+
+    
+    def categorical_cross_entropy_loss(self, y):
+        return T.nnet.categorical_crossentropy(self.p_y_given_x, y).mean()
