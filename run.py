@@ -84,6 +84,9 @@ def run_task(params, task_num):
 
             if not(os.path.isfile(config.prediction_file)):
                 open(config.prediction_file, 'a').close()
+            if config.theano_graphs is None:
+                config.theano_graphs = os.path.join(os.getcwd(),
+                                                    'theano_graphs')
             predict(dataset,
                     params['best_model'],
                     params['batch_size'],
@@ -122,13 +125,23 @@ def get_parser():
                         type=lambda x: utils.is_valid_file(parser, x),
                         default=None,
                         help="input CSV file to split")
-    parser.add_argument("-o", "--output",
-                        dest="j")
+    parser.add_argument("-o", "--no-ordinal",
+                        dest="ordinal",
+                        action='store_true')
+    parser.add_argument("-n", "--no-normalize",
+                        dest="norm",
+                        action='store_true')
     parser.add_argument("-z", "--svm",
                         dest="svm_dataset",
                         type=lambda x: utils.is_valid_file(parser, x),
                         default=None,
                         help="The dataset to be processed by the SVM")
+    parser.add_argument("--delimiter",
+                        action='store',
+                        dest="delimiter")
+    parser.set_defaults(norm=False)
+    parser.set_defaults(ordinal=False)
+    parser.set_defaults(delimiter=';')
     return parser
 
 '''
@@ -150,10 +163,8 @@ if __name__ == '__main__':
         data = json.load(json_data)
         run(data['tasks'])
     if args.filetosplit is not None:
-        try:
-            split(args.filetosplit)
-        except:
-            print('Oops something died Jim')
-            sys.exit()
+            print('Delimiter' + str(args.delimiter))
+            split(args.filetosplit, normalization=args.norm,
+                  ordinal=args.ordinal, delimiter=args.delimiter)
     if args.svm_dataset is not None:
             svm.svm_exp(args.svm_dataset)

@@ -39,23 +39,23 @@ import numpy as np
 
 
 def main(input_file, delimiter=";", split_percent=80,
-         normalization=True, ordinal=False):
+         normalization=False, ordinal=False):
     input_file = os.path.abspath(input_file)
-    print(input_file)
+    print("File: " + str(input_file))
     try:
         if ".csv" in input_file:
             transform_set = pd.read_csv(input_file, sep=delimiter)
         else:
             transform_set = pd.read_excel(input_file)
     except:
-        print("Hey Jim something happened while reading the file")
+        print("Hey Jim something happened while parsing the CSV File")
         sys.exit(2)
 
     # Here the algorithms performs the standarization
     # and shuffling of the data
     # y_label_set = transform_set.ix[:, -1:] <-- accessing pandas
     # Dataframes through ix
-    proper_shit(transform_set)
+    # proper_shit(transform_set)
     y_label_name = transform_set.axes[1][-1:].values[0] + '_'
     transform_set = pd.get_dummies(transform_set)
     train_shape = transform_set.shape
@@ -69,26 +69,29 @@ def main(input_file, delimiter=";", split_percent=80,
         primarily classification and avoids normalizing it instead
         only normalizing the X values.
     """
-    if normalization:
-        i = 0
-        for j in train_set.axes[1].values:
-            if y_label_name in j:
-                i = i - 1
+    i = 0
+    for j in train_set.axes[1].values:
+        if y_label_name in j:
+            i = i - 1
+    train_set_x = train_set.ix[:, :i]
+    train_set_y = train_set.ix[:, i:]
+    if not(ordinal):
+        train_set_y = train_set_y.ix[:, -1:]
 
-        train_set_x = train_set.ix[:, :i]
-        train_set_y = train_set.ix[:, i:]
-    # if ordinal:
-    #     for j in xrange(i):
-    #         for k in xrange(train_set_y.shape[0]):
-
+    if not(normalization):
+        # if ordinal:
+        #     for j in xrange(i):
+        #         for k in xrange(train_set_y.shape[0]):
         train_set_norm = ((train_set_x -
-                           train_set_x.mean()) /
+                          train_set_x.mean()) /
                           (train_set_x.max()-train_set_x.min()))
         # Merge the set again
         train_set_norm = train_set_norm.join(train_set_y)
-        train_set = train_set_norm
+    else:
+        train_set_norm = train_set_x.join(train_set_y)
 
-    # Here we do the splitting
+    train_set = train_set_norm
+
     indice_percent = int((train_shape[0]/100.0)*split_percent)
     indice_percent_valid = int((indice_percent/100.0) * split_percent)
     filepath, filename = os.path.split(input_file)
@@ -97,7 +100,6 @@ def main(input_file, delimiter=";", split_percent=80,
     output_train = filename + "_train.csv"
     output_valid = filename + "_valid.csv"
     output_test = filename + "_test.csv"
-
     train_set[:indice_percent][:indice_percent_valid].to_csv(
         os.path.join(filepath, output_train), header=True, index=False)
     train_set[:indice_percent:][indice_percent_valid:].to_csv(
@@ -108,16 +110,24 @@ def main(input_file, delimiter=";", split_percent=80,
           + output_test + "in folder" + filepath)
 
 
+"""
+This is a special construction area off-limits ;):
+    At a later time in date this sction could be used toa ctually implement a
+    custom normalization routine which produces beautiful data s we envision
+    it. Instead of one-hot-encoding one would actually produce binary data
+    formats which would make sense then split them etc. As a dummy function is
+    provided by pandas i won't get into it, if this wasn't a university project
+    needed to be done i would have implemented the dummy function in a more
+    accessible way.
+
 def charis_normalizer(transform_set):
-    """
         Creates integer list, which is a column wise identifier of columsn
         which only contain integers and thus are excempt from standarization
         per se
-    """
     y_label_name = transform_set.axes[1][-1:].values
     integer_list = []
     x_first_row = transform_set.iloc[0].values.tolist()
-    for i,val in enumerate(x_first_row):
+    for i, val in enumerate(x_first_row):
         print('We have : ' + str(val))
         if str(val).isdigit():
             integer_list.append(i)
@@ -127,22 +137,23 @@ def charis_normalizer(transform_set):
 
 
 def create_normalized_df(transform_set, integer_list):
-     dv = DictVectorizer(sparse=False) 
-     df = pd.to_numeric(transform_set)
-     dv.fit_transform(df.to_dict(orient='records'))
+    dv = DictVectorizer(sparse=False)
+    df = pd.to_numeric(transform_set)
+    dv.fit_transform(df.to_dict(orient='records'))
 
-     print(df)
+    print(df)
 
 
 def proper_shit(transform_set):
     transform_set_x = pd.get_dummies(transform_set.ix[:,:-1])
-    transform_set_y = transform_set.ix[:,-1:]
+    transform_set_y = transform_set.ix[:, -1:]
     category_list = []
     for i in transform_set_y.iterrows():
         category = str(i[1].values[0])
         if not(category in category_list):
             category_list.append(category)
 
-def categorical_to_numerical_y(transform_set_y, category_list):
-    pass        
 
+def categorical_to_numerical_y(transform_set_y, category_list):
+    pass
+"""
